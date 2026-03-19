@@ -361,6 +361,59 @@ def api_update_memory():
     
     return jsonify({"success": True, "memory": memory})
 
+# ===================== PROMPT API =====================
+
+@app.route('/api/prompt', methods=['POST'])
+def api_prompt():
+    """Submit a prompt/command from external source (phone, etc)"""
+    data = request.json
+    prompt = data.get("prompt", "")
+    
+    if not prompt:
+        return jsonify({"error": "No prompt provided"}), 400
+    
+    # Add to pending tasks in memory
+    if MEMORY_FILE.exists():
+        with open(MEMORY_FILE) as f:
+            memory = json.load(f)
+    else:
+        memory = {}
+    
+    if "pending_tasks" not in memory:
+        memory["pending_tasks"] = []
+    
+    memory["pending_tasks"].append({
+        "prompt": prompt,
+        "submitted_at": datetime.now().isoformat(),
+        "status": "pending"
+    })
+    
+    with open(MEMORY_FILE, "w") as f:
+        json.dump(memory, f, indent=2)
+    
+    # Trigger a commander cycle
+    subprocess.Popen(
+        [sys.executable, "run_system.py", "--once"],
+        cwd=str(Path(__file__).parent),
+        stdout=subprocess.DEVNULL,
+        stderr=subprocess.DEVNULL
+    )
+    
+    return jsonify({
+        "success": True, 
+        "message": "Prompt received! Commander will process it shortly.",
+        "queue_position": len(memory.get("pending_tasks", []))
+    })
+
+@app.route('/api/commands')
+def api_commands():
+    """Get current commander commands"""
+    cmd_file = Path(__file__).parent / "commander_commands.json"
+    if cmd_file.exists():
+        with open(cmd_file) as f:
+            return jsonify(json.load(f))
+    return jsonify({"commands": []})
+
 # ===================== RUN AGENT API =====================
 
 @app.route('/api/run_agent', methods=['POST'])

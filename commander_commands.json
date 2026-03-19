@@ -1,7 +1,67 @@
 {
-  "timestamp": "2026-03-19T10:58:43.902022",
-  "command_count": 2,
+  "timestamp": "2026-03-19T11:06:16.558724",
+  "command_count": 8,
   "commands": [
+    {
+      "title": "Refresh Data",
+      "objective": "Refresh stale data for dashboard",
+      "target_agent": "news_agent",
+      "requirements": {
+        "feature": "dashboard"
+      },
+      "expected_outcome": "Data refreshed and up to date",
+      "priority": "MEDIUM"
+    },
+    {
+      "title": "Refresh Data",
+      "objective": "Refresh stale data for portfolio",
+      "target_agent": "news_agent",
+      "requirements": {
+        "feature": "portfolio"
+      },
+      "expected_outcome": "Data refreshed and up to date",
+      "priority": "MEDIUM"
+    },
+    {
+      "title": "Refresh Data",
+      "objective": "Refresh stale data for news",
+      "target_agent": "news_agent",
+      "requirements": {
+        "feature": "news"
+      },
+      "expected_outcome": "Data refreshed and up to date",
+      "priority": "MEDIUM"
+    },
+    {
+      "title": "Refresh Data",
+      "objective": "Refresh stale data for agents",
+      "target_agent": "news_agent",
+      "requirements": {
+        "feature": "agents"
+      },
+      "expected_outcome": "Data refreshed and up to date",
+      "priority": "MEDIUM"
+    },
+    {
+      "title": "Refresh Data",
+      "objective": "Refresh stale data for stocks",
+      "target_agent": "news_agent",
+      "requirements": {
+        "feature": "stocks"
+      },
+      "expected_outcome": "Data refreshed and up to date",
+      "priority": "MEDIUM"
+    },
+    {
+      "title": "Process Pending Tasks",
+      "objective": "Execute all pending tasks from queue",
+      "target_agent": "master_agent",
+      "requirements": {
+        "task_type": "pending"
+      },
+      "expected_outcome": "All pending tasks completed",
+      "priority": "HIGH"
+    },
     {
       "title": "Run Pre-Pull Validation",
       "objective": "Validate all code before any deployment",
