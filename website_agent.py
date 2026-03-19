@@ -125,11 +125,140 @@ class WebsiteAgent:
         except:
             return "Logs not available"
     
-    def add_api_endpoint(self, endpoint_name, handler_code):
-        """Add a new API endpoint to web_app.py"""
-        # This is a placeholder - would need to parse and modify web_app.py
-        logger.info("📝 Would add endpoint: {endpoint_name}")
-        logger.info("   Code: {handler_code[:50]}...")
+    def add_stock_pages(self):
+        """Add stock detail pages to web_app.py"""
+        import re
+        
+        # Read web_app.py
+        with open(self.web_app) as f:
+            content = f.read()
+        
+        # Check if stock pages already exist
+        if "/stock/" in content:
+            logger.info("Stock pages already exist!")
+            return True
+        
+        # Add stock detail API route
+        stock_route = '''
+# ===================== STOCK DETAIL PAGE =====================
+@app.route('/stock/<symbol>')
+def stock_detail(symbol):
+    """Individual stock detail page"""
+    symbol = symbol.upper()
+    
+    stocks = get_stocks()
+    stock = stocks.get(symbol, {})
+    
+    # Get chart data
+    chart_data = []
+    tsx_map = {"NANO": "NANO.TO", "WPM": "WPM.TO", "SHOP": "SHOP.TO",
+               "BB": "BB.TO", "GSY": "GSY.TO", "DOL": "DOL.TO"}
+    try:
+        ticker = yf.Ticker(tsx_map.get(symbol, f"{symbol}.TO"))
+        hist = ticker.history(period="1mo")
+        for date, row in hist.iterrows():
+            chart_data.append({
+                "date": date.strftime("%Y-%m-%d"),
+                "price": round(row["Close"], 2)
+            })
+    except:
+        pass
+    
+    html = f"""
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <title>{symbol} - Clawbot Stock Intelligence</title>
+        <style>
+            * {{ margin: 0; padding: 0; box-sizing: border-box; }}
+            body {{ font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: var(--bg-dark); color: white; padding: 20px; }}
+            .header {{ display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; }}
+            .back-btn {{ background: var(--blue); color: white; padding: 10px 20px; text-decoration: none; border-radius: 8px; }}
+            .stock-header {{ display: flex; align-items: center; gap: 20px; margin-bottom: 30px; }}
+            .stock-price {{ font-size: 48px; font-weight: bold; }}
+            .stock-change {{ font-size: 24px; }}
+            .positive {{ color: #00c853; }}
+            .negative {{ color: #ff1744; }}
+            .card {{ background: var(--bg-card); border-radius: 16px; padding: 24px; margin-bottom: 20px; }}
+            .card-title {{ font-size: 18px; color: var(--text-muted); margin-bottom: 12px; }}
+            .metric {{ display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid var(--bg-dark); }}
+            .metric-label {{ color: var(--text-muted); }}
+            .metric-value {{ font-weight: bold; }}
+            .chart-container {{ height: 300px; display: flex; align-items: flex-end; gap: 2px; }}
+            .chart-bar {{ flex: 1; background: var(--blue); border-radius: 2px 2px 0 0; min-height: 10px; }}
+            .thesis {{ background: var(--bg-dark); padding: 16px; border-radius: 8px; margin-top: 12px; }}
+        </style>
+    </head>
+    <body>
+        <div class="header">
+            <a href="/" class="back-btn">← Back to Dashboard</a>
+            <h1>Stock Intelligence</h1>
+        </div>
+        
+        <div class="stock-header">
+            <div>
+                <h1 style="font-size: 36px;">{symbol}</h1>
+                <p style="color: var(--text-muted);">{stock.get('name', symbol)}</p>
+            </div>
+            <div>
+                <div class="stock-price">${stock.get('price', '0.00')}</div>
+                <div class="stock-change {'positive' if stock.get('change', 0) >= 0 else 'negative'}">
+                    {stock.get('change', 0):.2f}% ({stock.get('sentiment', 'Neutral')})
+                </div>
+            </div>
+        </div>
+        
+        <div class="card">
+            <div class="card-title">📊 Price Chart (1 Month)</div>
+            <div class="chart-container">
+                {"".join([f'<div class="chart-bar" style="height: {int((float(p.get("price", 1))/max([float(x.get("price", 1)) for x in chart_data])*200))}px" title="${p.get("price")}"></div>' for p in chart_data[-20:]])}
+            </div>
+        </div>
+        
+        <div class="card">
+            <div class="card-title">📈 Key Metrics</div>
+            <div class="metric"><span class="metric-label">Sector</span><span class="metric-value">{stock.get('sector', 'N/A')}</span></div>
+            <div class="metric"><span class="metric-label">Setup</span><span class="metric-value">{stock.get('setup', 'N/A')}</span></div>
+            <div class="metric"><span class="metric-label">Target</span><span class="metric-value">${stock.get('target', 'N/A')}</span></div>
+            <div class="metric"><span class="metric-label">Stop Loss</span><span class="metric-value">${stock.get('stop', 'N/A')}</span></div>
+            <div class="metric"><span class="metric-label">Entry Zone</span><span class="metric-value">{stock.get('entry', 'N/A')}</span></div>
+            <div class="metric"><span class="metric-label">Conviction</span><span class="metric-value">{stock.get('conviction', 'N/A')}/10</span></div>
+        </div>
+        
+        <div class="card">
+            <div class="card-title">💡 Investment Thesis</div>
+            <div class="thesis">{stock.get('thesis', 'No thesis available.')}</div>
+        </div>
+        
+        <div class="card">
+            <div class="card-title">🎯 Catalysts & Risks</div>
+            <div class="thesis">
+                <p><strong>Catalysts:</strong> {stock.get('catalysts', 'N/A')}</p>
+                <br>
+                <p><strong>Risks:</strong> {stock.get('risks', 'N/A')}</p>
+            </div>
+        </div>
+    </body>
+    </html>
+    """
+    return html
+'''
+        
+        # Find where to insert (after get_stocks function)
+        # Insert before the HTML template
+        insert_point = content.find('<!DOCTYPE html>')
+        if insert_point > 0:
+            content = content[:insert_point] + stock_route + '\n' + content[insert_point:]
+        
+        # Add click handler to stock cards
+        # Make stock cards clickable
+        content = content.replace('onclick="showStock(', 'onclick="window.location.href=\'/stock/\' + ')
+        
+        with open(self.web_app, "w") as f:
+            f.write(content)
+        
+        logger.info("✅ Added stock detail pages!")
+        return True
         
     def list_routes(self):
         """List all API routes"""

@@ -1,65 +1,15 @@
 {
-  "timestamp": "2026-03-19T11:06:16.558724",
-  "command_count": 8,
+  "timestamp": "2026-03-19T11:45:40.504898",
+  "command_count": 3,
   "commands": [
     {
-      "title": "Refresh Data",
-      "objective": "Refresh stale data for dashboard",
-      "target_agent": "news_agent",
+      "title": "Add Stock Detail Pages",
+      "objective": "Create /stock/[ticker] pages with charts, analysis, company info",
+      "target_agent": "website_agent",
       "requirements": {
-        "feature": "dashboard"
+        "action": "add_stock_pages"
       },
-      "expected_outcome": "Data refreshed and up to date",
-      "priority": "MEDIUM"
-    },
-    {
-      "title": "Refresh Data",
-      "objective": "Refresh stale data for portfolio",
-      "target_agent": "news_agent",
-      "requirements": {
-        "feature": "portfolio"
-      },
-      "expected_outcome": "Data refreshed and up to date",
-      "priority": "MEDIUM"
-    },
-    {
-      "title": "Refresh Data",
-      "objective": "Refresh stale data for news",
-      "target_agent": "news_agent",
-      "requirements": {
-        "feature": "news"
-      },
-      "expected_outcome": "Data refreshed and up to date",
-      "priority": "MEDIUM"
-    },
-    {
-      "title": "Refresh Data",
-      "objective": "Refresh stale data for agents",
-      "target_agent": "news_agent",
-      "requirements": {
-        "feature": "agents"
-      },
-      "expected_outcome": "Data refreshed and up to date",
-      "priority": "MEDIUM"
-    },
-    {
-      "title": "Refresh Data",
-      "objective": "Refresh stale data for stocks",
-      "target_agent": "news_agent",
-      "requirements": {
-        "feature": "stocks"
-      },
-      "expected_outcome": "Data refreshed and up to date",
-      "priority": "MEDIUM"
-    },
-    {
-      "title": "Process Pending Tasks",
-      "objective": "Execute all pending tasks from queue",
-      "target_agent": "master_agent",
-      "requirements": {
-        "task_type": "pending"
-      },
-      "expected_outcome": "All pending tasks completed",
+      "expected_outcome": "Clickable stock cards lead to detail pages",
       "priority": "HIGH"
     },
     {

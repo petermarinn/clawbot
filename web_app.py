@@ -453,6 +453,67 @@ def api_run_agent():
         return jsonify({"error": str(e)}), 500
 
 @app.route('/api/chart/<symbol>')
+
+# Stock detail page route - add to web_app.py after imports
+
+@app.route("/stock/<symbol>")
+def stock_detail(symbol):
+    """Individual stock detail page"""
+    symbol = symbol.upper()
+    stock = STOCKS.get(symbol.upper(), {})
+    
+    change = stock.get("change", 0)
+    change_class = "pos" if change >= 0 else "neg"
+    
+    html = f"""
+<!DOCTYPE html>
+<html>
+<head>
+<title>{symbol} - Clawbot</title>
+<style>
+* {{ margin: 0; padding: 0; box-sizing: border-box; }}
+body {{ font-family: sans-serif; background: #0d1117; color: white; padding: 20px; }}
+.header {{ display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; }}
+.back-btn {{ background: #238636; color: white; padding: 10px 20px; text-decoration: none; border-radius: 8px; }}
+.card {{ background: #161b22; border-radius: 16px; padding: 24px; margin-bottom: 20px; }}
+.stock-header {{ display: flex; align-items: center; gap: 20px; }}
+.stock-price {{ font-size: 48px; font-weight: bold; }}
+.metric {{ display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid #30363d; }}
+.pos {{ color: #00c853; }}
+.neg {{ color: #ff1744; }}
+</style>
+</head>
+<body>
+<div class="header">
+<a href="/" class="back-btn">Back</a>
+<h1>Stock Intelligence</h1>
+</div>
+<div class="card stock-header">
+<div>
+<h1 style="font-size:36px;">{symbol}</h1>
+<p style="color:#8b949e;">{stock.get("name", symbol)}</p>
+</div>
+<div>
+<div class="stock-price">${stock.get("price", "0.00")}</div>
+<div class="{change_class}">{stock.get("change", 0):.2f}%</div>
+</div>
+</div>
+<div class="card">
+<h3>Key Metrics</h3>
+<div class="metric"><span style="color:#8b949e;">Sector</span><span>{stock.get("sector", "N/A")}</span></div>
+<div class="metric"><span style="color:#8b949e;">Target</span><span>${stock.get("target", "N/A")}</span></div>
+<div class="metric"><span style="color:#8b949e;">Stop</span><span>${stock.get("stop", "N/A")}</span></div>
+<div class="metric"><span style="color:#8b949e;">Conviction</span><span>{stock.get("conviction", "N/A")}/10</span></div>
+</div>
+<div class="card">
+<h3>Thesis</h3>
+<p>{stock.get("thesis", "N/A")}</p>
+</div>
+</body>
+</html>
+"""
+    return html
+
 def api_chart(symbol):
     tf_map = {'1D': '1d', '1W': '5d', '1M': '1mo', '3M': '3mo', '1Y': '1y'}
     period = tf_map.get(request.args.get('tf', '1M'), '1mo')

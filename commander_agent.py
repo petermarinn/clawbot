@@ -2,25 +2,71 @@
 """
 COMMANDER AGENT - Autonomous Decision Maker
 ==========================================
-Responsibilities:
-- Analyze system state
-- Decide what tasks should be executed
-- Assign tasks to master_agent
-- Coordinate all other agents
+Uses Ollama for AI-powered decision making
 
-Commander MUST NOT:
-- Write code
-- Modify files directly
-- Execute tasks
+Requirements:
+- Ollama installed: curl -fsSL https://ollama.com/install.sh | sh
+- Model pulled: ollama pull codellama
 
-Commander ONLY outputs structured commands.
+If Ollama unavailable, falls back to rule-based logic.
 """
 
 import json
 import os
+import subprocess
 from pathlib import Path
 from datetime import datetime
 from typing import Dict, List, Optional
+
+
+class OllamaClient:
+    """Simple Ollama API client"""
+    
+    def __init__(self, model="codellama:7b", base_url="http://localhost:11434"):
+        self.model = model
+        self.base_url = base_url
+        self.available = self._check_available()
+        
+    def _check_available(self) -> bool:
+        """Check if Ollama is running"""
+        try:
+            result = subprocess.run(
+                ["curl", "-s", f"{self.base_url}/api/tags"],
+                capture_output=True,
+                timeout=5
+            )
+            return result.returncode == 0
+        except:
+            return False
+            
+    def generate(self, prompt: str, system: str = None) -> str:
+        """Generate response from Ollama"""
+        if not self.available:
+            return None
+            
+        payload = {
+            "model": self.model,
+            "prompt": prompt,
+            "stream": False
+        }
+        if system:
+            payload["system"] = system
+            
+        try:
+            result = subprocess.run(
+                ["curl", "-s", "-X", "POST", f"{self.base_url}/api/generate",
+                 "-H", "Content-Type: application/json",
+                 "-d", json.dumps(payload)],
+                capture_output=True,
+                text=True,
+                timeout=120
+            )
+            if result.returncode == 0:
+                data = json.loads(result.stdout)
+                return data.get("response", "").strip()
+        except Exception as e:
+            print(f"Ollama error: {e}")
+        return None
 
 
 class CommanderAgent:
@@ -76,32 +122,99 @@ class CommanderAgent:
                 "action": "fix_broken_items",
                 "items": broken
             })
-            
-        # Check for stale data
+        
+        # Check if we have any IMPROVEMENT tasks to do (not just refresh)
+        completed = self.memory.get("completed_tasks", [])
+        
+        # HIGH-VALUE IMPROVEMENTS - check what's NOT done
+        improvements_needed = []
+        
+        # 1. Check if stock detail pages exist
+        if not self.has_feature("stock_pages"):
+            improvements_needed.append({
+                "title": "Add Stock Detail Pages",
+                "objective": "Create /stock/[ticker] pages with charts, analysis, company info",
+                "target_agent": "website_agent",
+                "requirements": {"action": "add_stock_pages"},
+                "expected_outcome": "Clickable stock cards lead to detail pages",
+                "priority": "HIGH"
+            })
+        
+        # 2. Check if company logos exist
+        if not self.has_feature("company_logos"):
+            improvements_needed.append({
+                "title": "Add Company Logos",
+                "objective": "Display company logos on stock cards",
+                "target_agent": "website_agent", 
+                "requirements": {"action": "add_logos"},
+                "expected_outcome": "Logos visible on all stock cards",
+                "priority": "MEDIUM"
+            })
+        
+        # 3. Check if news links to stocks
+        if not self.has_feature("news_stock_links"):
+            improvements_needed.append({
+                "title": "Link News to Stocks",
+                "objective": "Make news items clickable to relevant stock pages",
+                "target_agent": "news_agent",
+                "requirements": {"action": "add_stock_links"},
+                "expected_outcome": "Click news to see related stock",
+                "priority": "MEDIUM"
+            })
+        
+        # 4. Check if portfolio has charts
+        if not self.has_feature("portfolio_charts"):
+            improvements_needed.append({
+                "title": "Add Portfolio Charts",
+                "objective": "Visual portfolio performance with charts",
+                "target_agent": "website_agent",
+                "requirements": {"action": "add_portfolio_charts"},
+                "expected_outcome": "Portfolio shows performance chart",
+                "priority": "MEDIUM"
+            })
+        
+        # If we have improvements, add ONE priority improvement
+        if improvements_needed:
+            # Pick the highest priority one
+            best = improvements_needed[0]  # Already sorted by priority
+            analysis["recommendations"].append({
+                "priority": "HIGH",
+                "action": "implement_improvement",
+                "improvement": best
+            })
+        else:
+            # No improvements needed - just maintenance
+            analysis["recommendations"].append({
+                "priority": "LOW",
+                "action": "maintenance",
+                "description": "All features implemented - maintenance mode"
+            })
+        
+        # Check for stale data (only if we're actually doing improvements)
         last_updates = self.memory.get("last_updates", {})
+        stale_count = 0
         for feature, timestamp in last_updates.items():
             try:
                 last_time = datetime.fromisoformat(timestamp)
                 age = (datetime.now() - last_time).total_seconds()
-                if age > 3600:  # Older than 1 hour
-                    analysis["recommendations"].append({
-                        "priority": "MEDIUM",
-                        "action": "refresh_data",
-                        "feature": feature
-                    })
+                if age > 3600:
+                    stale_count += 1
             except:
                 pass
-                
-        # Check pending tasks
-        pending = self.memory.get("pending_tasks", [])
-        if pending:
+        
+        if stale_count > 3 and improvements_needed:
             analysis["recommendations"].append({
-                "priority": "HIGH",
-                "action": "process_pending_tasks",
-                "count": len(pending)
+                "priority": "MEDIUM",
+                "action": "update_timestamps",
+                "description": "Update feature timestamps after improvements"
             })
-            
+        
         return analysis
+    
+    def has_feature(self, feature_name: str) -> bool:
+        """Check if a feature has been implemented"""
+        features = self.memory.get("features", [])
+        return any(f.get("name") == feature_name for f in features)
         
     def decide_commands(self, analysis: Dict) -> List[Dict]:
         """Decide what commands to issue based on analysis"""
@@ -133,6 +246,16 @@ class CommanderAgent:
                     "priority": rec.get("priority", "MEDIUM")
                 })
                 
+            elif action == "implement_improvement":
+                improvement = rec.get("improvement", {})
+                commands.append({
+                    "title": improvement.get("title", "Implement Improvement"),
+                    "objective": improvement.get("objective", ""),
+                    "target_agent": improvement.get("target_agent", "website_agent"),
+                    "requirements": improvement.get("requirements", {}),
+                    "expected_outcome": improvement.get("expected_outcome", ""),
+                    "priority": "HIGH"
+                })
             elif action == "refresh_data":
                 commands.append({
                     "title": "Refresh Data",
