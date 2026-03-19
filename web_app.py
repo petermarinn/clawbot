@@ -54,20 +54,20 @@ STOCKS = {
         "conviction": 7,
         "tam": "$40B+ cathode materials market"
     },
-    "CXB": {
-        "name": "Calibre Mining Corp",
-        "sector": "Gold Mining",
+    "WPM": {
+        "name": "Wheaton Precious Metals",
+        "sector": "Precious Metals Streaming",
         "price": 0, "prev_close": 0, "change": 0, "change_pct": 0,
-        "target": "$4.00", "upside": "30-40%",
-        "entry": "$2.80-$3.20", "stop": "$2.50",
-        "setup": "Merger Arbitrage",
+        "target": "$95", "upside": "25-35%",
+        "entry": "$68-$78", "stop": "$58",
+        "setup": "Precious Metals Play",
         "sentiment": "Bullish",
-        "sentiment_score": 75,
-        "thesis": "Gold at highs + merger closing May 2025. Valentine Gold Q3 production. $7.7B deal with Equinox creating top-5 producer.",
-        "risks": "Gold price drop, merger delay, Nicaragua",
-        "catalysts": "Merger close, Valentine production, gold momentum",
+        "sentiment_score": 72,
+        "thesis": "Gold at record highs + silver momentum. Streaming model = high margins. International portfolio diversifies risk. Rising gold/silver prices = disproportionate revenue growth.",
+        "risks": "Metal price drop, acquisition risk, currency",
+        "catalysts": "Gold/silver rally, new streaming deals, production ramp",
         "conviction": 8,
-        "tam": "$500B+ gold market"
+        "tam": "$15B+ precious metals streaming"
     },
     "SHOP": {
         "name": "Shopify Inc",
@@ -173,7 +173,7 @@ class DataFetcher:
         logger.info("📊 Fetching data...")
         
         # Stocks
-        for symbol, tsx in [("NANO", "NANO.TO"), ("CXB", "CXB.TO"), ("SHOP", "SHOP.TO"),
+        for symbol, tsx in [("NANO", "NANO.TO"), ("WPM", "WPM.TO"), ("SHOP", "SHOP.TO"),
                             ("BB", "BB.TO"), ("GSY", "GSY.TO"), ("DOL", "DOL.TO")]:
             try:
                 ticker = yf.Ticker(tsx)
@@ -278,7 +278,7 @@ def api_chart(symbol):
     tf_map = {'1D': '1d', '1W': '5d', '1M': '1mo', '3M': '3mo', '1Y': '1y'}
     period = tf_map.get(request.args.get('tf', '1M'), '1mo')
     
-    tsx_map = {"NANO": "NANO.TO", "CXB": "CXB.TO", "SHOP": "SHOP.TO",
+    tsx_map = {"NANO": "NANO.TO", "WPM": "WPM.TO", "SHOP": "SHOP.TO",
                "BB": "BB.TO", "GSY": "GSY.TO", "DOL": "DOL.TO"}
     
     try:
@@ -475,7 +475,7 @@ HTML = '''<!DOCTYPE html>
                     <div class="card-header"><div class="card-title">🔔 Price Alerts</div></div>
                     <div id="alerts-list"></div>
                     <div class="alert-form">
-                        <select id="alert-symbol"><option value="">Select</option><option value="NANO">NANO</option><option value="CXB">CXB</option><option value="SHOP">SHOP</option><option value="BB">BB</option><option value="GSY">GSY</option><option value="DOL">DOL</option></select>
+                        <select id="alert-symbol"><option value="">Select</option><option value="NANO">NANO</option><option value="WPM">WPM</option><option value="SHOP">SHOP</option><option value="BB">BB</option><option value="GSY">GSY</option><option value="DOL">DOL</option></select>
                         <select id="alert-condition"><option value="above">Above</option><option value="below">Below</option></select>
                         <input type="number" id="alert-target" placeholder="$">
                         <button class="btn btn-success" onclick="addAlert()">+</button>
