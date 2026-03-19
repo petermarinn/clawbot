@@ -13,5 +13,8 @@ lxml>=4.9.0
 # Web search (local)
 ddgs>=9.0.0
 
+# Stock data (free)
+yfinance>=0.2.0
+
 # CLI
 click>=8.1.0
