@@ -1,6 +1,7 @@
+#!/usr/bin/env python3
 """
-Ultimate Stock Analysis with GLOBAL MACRO INTELLIGENCE
-Includes: Market Data + News + Sentiment + Macro Events + Positioning
+VISUAL Stock Analysis with ALL Enhancements
+Charts + Snapshots + Tables + Macro + Sentiment
 
 Usage:
     python stock_macro.py
@@ -15,7 +16,6 @@ import yfinance as yf
 import smtplib
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
-from ddgs import DDGS
 from datetime import datetime
 
 OLLAMA_URL = "http://localhost:11434/api/generate"
@@ -29,100 +29,60 @@ EMAIL_PASSWORD = os.environ.get("EMAIL_PASSWORD", "")
 EMAIL_TO = os.environ.get("EMAIL_TO", "peterm2543@gmail.com")
 
 
-# ===================== GLOBAL MACRO INTELLIGENCE =====================
+# ===================== GLOBAL MACRO =====================
 MACRO_CONTEXT = """
 🌍 CURRENT MACRO LANDSCAPE:
 
-• FEDERAL RESERVE: Fed signaling steady rates through 2025. Markets pricing in potential cuts late 2025. 
-  → Impact: Growth stocks (SHOP) benefit from rate stability.
+🟢 POSITIVE: Fed rates stabilizing | Gold at highs | AI boom | CAD weakness helping exporters
+🟡 MIXED: Oil volatile | Consumer spending resilient but pressured
+🔴 RISKS: Geopolitics | Inflation sticky | US-China tensions
 
-• BANK OF CANADA: Holding rates at 3.25%. CAD weakness supporting resource stocks.
-  → Impact: Canadian exporters/ miners benefit from weak loonie.
-
-• COMMODITIES: Gold at ~$3,000/oz (all-time highs). Oil volatile ($70-80 range). Lithium recovering.
-  → Impact: Gold miners (CXB) strong, energy mixed, battery plays (NANO) long-term positive.
-
-• INFLATION: US CPI trending down to ~3%. Core inflation sticky at 3.5%.
-  → Impact: Rate-sensitive sectors (banks, REITs) improving. Consumer spending stabilizing.
-
-• GEOPOLITICS: US-China tensions persistent. Trade uncertainty. Middle East instability affecting oil.
-  → Impact: Supply chain plays, domestic production favored (NANO IRA benefit).
-
-• US ECONOMY: Strong jobs market. Consumer spending resilient. AI investment booming.
-  → Impact: Tech (SHOP), consumer (DOL), industrials outperforming.
-
-• CANADA SPECIFIC: Housing market stabilizing. CAD weak vs USD. Energy sector mixed.
-  → Impact: Banks stable, exporters benefit from CAD weakness.
+📊 KEY DRIVERS:
+• Fed: Steady through 2025 → Growth stocks benefit
+• Gold: ~$3,000/oz → Miners strong
+• AI: Boom continuing → Tech leaders
+• CAD: Weak vs USD → Exporters benefit
+• Consumer: Shifting to value → Dollar stores win
 """
 
 
-# ===================== STOCK ANALYSIS =====================
+# ===================== STOCK DATA =====================
 STOCK_ANALYSIS = {
     "NANO": {
         "name": "Nano One Materials Corp",
-        "sector": "Battery Technology / Cleantech",
+        "sector": "Battery Technology",
         "current_price": 0,
         "price_target": "$3.65",
         "timeframe": "12-18 months",
         "upside": "100-150%",
         "support": "$1.50",
         "resistance": "$4.00",
+        "entry_zone": "$1.50-$2.00",
+        "stop_loss": "$1.20",
+        "setup_type": "Sector Play",
+        "quick_take": "Battery tech + IRA tailwinds = high-risk high-reward",
         
-        "macro_impact": """🌍 MACRO TAILWINDS:
-• IRA (Inflation Reduction Act): $7.5B battery manufacturing tax credits = DIRECT BENEFIT
-• US-China tensions: Domestic battery production prioritized = COMPETITIVE ADVANTAGE  
-• Bank of Canada funding: $3M NRCan grant = GOVERNMENT SUPPORT
-• LFP battery demand: Growing 5X by 2030 = SECTOR TAILWIND
-• CAD weakness: Makes Canadian tech more attractive to US buyers""",
-
-        "fundamental": """Nano One Materials has developed proprietary One-Pot process for LFP cathode materials. LFP batteries dominating EV market (cheaper, safer, longer-lasting).
-
-US LFP capacity growing 60%+ in 2025 (180→290 GWh). North American battery factories ramping = demand for domestic suppliers.
-
-Key: IRA incentives favor North American production. Asian producers dominate globally, but tariffs + incentives creating opening for Nano One.""",
-
+        "why_now": "⚡ WHY NOW?\n• US battery factories ramping (180→290 GWh in 2025)\n• IRA tax credits = domestic production profitable\n• $3M government funding secured\n• Commercial deals expected 2025-2026",
+        
+        "key_numbers": "📊 KEY NUMBERS:\n• LFP capacity: +60% growth in 2025\n• Market: 5X growth by 2030\n• Analyst target: $3.65 avg\n• TAM: $40B+ cathode market",
+        
+        "market_psychology": "🧠 Most investors don't know NANO. Battery sector attention growing but NANO remains under-the-radar. Alpha made here.",
+        
+        "missed_entry": "🤔 MISSED ENTRY?\nIf breaks $2.50 with volume → Wait pullback to $2.20 OR enter on breakout. Consolidation = accumulation.",
+        
+        "macro_impact": "🌍 MACRO: IRA $7.5B tax credits | US-China = domestic priority | LFP demand 5X growth",
+        
+        "fundamental": "Proprietary One-Pot LFP process. LFP batteries dominating EV (cheaper, safer). US capacity +60% 2025. IRA favors North American production.",
+        
         "news": [
-            "NRCan awarded $3M for LFP supply chain - nanoone.ca (March 2025)",
-            "US LFP capacity +60% in 2025 - Yahoo Finance",
-            "Analyst price target: $3.65 avg, $5.00 high - Fintel",
-            "Selected for ALTA battery supply chain accelerator"
+            "NRCan $3M grant - nanoone.ca (March 2025)",
+            "US LFP +60% in 2025 - Yahoo Finance",
+            "Analyst target $3.65 avg - Fintel"
         ],
-
-        "sentiment": {
-            "bullish_why": "Government funding, IRA tailwinds, LFP demand boom, battery nationalism",
-            "bearish_why": "Years from revenue, unproven at scale, Chinese competition",
-            "overall": "Neutral to slightly bullish - catalyst dependent.",
-            "trend": "Stable/Neutral"
-        },
-
-        "positioning": {
-            "institutional": "Limited coverage - specialty battery funds only.",
-            "insiders": "Management buying - confidence signal.",
-            "short_interest": "Low float, moderate shorts - squeeze potential.",
-            "options": "Limited - typical for small cap."
-        },
-
-        "catalysts": [
-            "Commercial licensing deals → 2025-2026 → Revenue",
-            "US factory builds = domestic demand → ongoing",
-            "Government incentives (IRA) → ongoing advantage",
-            "Production ramp → 2026 proof"
-        ],
-
-        "timeline": {
-            "0_3_months": "Pilot projects, more funding",
-            "3_6_months": "Partnership discussions",
-            "6_12_months": "Commercial deals, revenue visibility"
-        },
-
-        "risks": [
-            "TECHNOLOGY: Need prove at commercial scale",
-            "COMPETITION: Chinese dominate globally",
-            "CAPITAL: Need funding for expansion",
-            "TIMING: Revenue years away"
-        ],
-
-        "invalidation": "Stock below $1.00 for 6+ months with no deals.",
+        
+        "risks": "TECHNOLOGY: Scale risk | COMPETITION: Chinese dominate | CAPITAL: Need funding | TIMING: Years to revenue",
+        
+        "invalidation": "Stock below $1.00 for 6+ months with no deals",
         "conviction": "7/10"
     },
 
@@ -135,130 +95,70 @@ Key: IRA incentives favor North American production. Asian producers dominate gl
         "upside": "30-40%",
         "support": "$2.80",
         "resistance": "$4.50",
-
-        "macro_impact": """🌍 MACRO TAILWINDS:
-• Gold at ~$3,000/oz: All-time highs = DIRECT BENEFIT to miners
-• Fed rate uncertainty: Gold as safe haven demand up
-• Geopolitical risks: Ukraine, Middle East = FLIGHT TO SAFETY
-• CAD weakness: Canadian gold miners get USD boost
-• Central bank buying: Global central banks accumulating gold""",
-
-        "fundamental": """Merging with Equinox Gold - $7.7B deal creating America's largest gold producer.
-
-Valentine Gold Mine (Newfoundland) on track for Q3 2025 production - adding 50%+ to output.
-
-Gold at historic highs. Merger creates scale, liquidity, analyst coverage. Classic merger arbitrage + gold beta.""",
-
+        "entry_zone": "$2.80-$3.20",
+        "stop_loss": "$2.50",
+        "setup_type": "Merger Arbitrage",
+        "quick_take": "Gold at highs + merger imminent = near-term catalyst",
+        
+        "why_now": "⚡ WHY NOW?\n• Merger closing May 2025\n• Valentine Gold Q3 2025 production\n• Gold at ~$3,000/oz (all-time high)\n• Creating top-5 gold producer",
+        
+        "key_numbers": "📊 KEY NUMBERS:\n• Merger: $7.7B deal\n• Valentine: +50% production\n• Gold: ~$3,000/oz (high)\n• Growth: +16% YoY Q1",
+        
+        "market_psychology": "🧠 Merger arbitrage + gold = rare combo. Institutional money positioned. Clear catalyst timeline.",
+        
+        "missed_entry": "🤔 MISSED ENTRY?\nWait 30 days post-merger for dip. If gold drops = better entry. Support $2.80.",
+        
+        "macro_impact": "🌍 MACRO: Gold at highs | Fed uncertainty = safe haven | Geopolitics = flight to safety | CAD weakness = USD boost",
+        
+        "fundamental": "Merging with Equinox Gold - $7.7B. Valentine Mine Q3 2025 (+50% production). Gold at historic highs. Scale + liquidity.",
+        
         "news": [
-            "Merger with Equinox creates $7.7B company - Reuters (Feb 2025)",
-            "Shareholders approved, close May 2025 - Stock Titan",
-            "Valentine Gold on track Q3 2025 - GlobeNewswire",
-            "Gold at ~$3,000/oz supporting margins"
+            "Merger $7.7B - Reuters (Feb 2025)",
+            "Shareholders approved - Stock Titan",
+            "Valentine on track Q3 - GlobeNewswire"
         ],
-
-        "sentiment": {
-            "bullish_why": "Merger imminent, Valentine production, gold at highs, safe haven flows",
-            "bearish_why": "Gold could fall 20%+, merger delays, Nicaragua risk",
-            "overall": "Strong bullish - merger + gold combo popular.",
-            "trend": "Increasing/Strong"
-        },
-
-        "positioning": {
-            "institutional": "Major funds hold. Merger arbitrage funds involved.",
-            "insiders": "Management aligned - equity rollover.",
-            "short_interest": "Low - arbitrage limits shorting.",
-            "options": "Heavy - typical for M&A."
-        },
-
-        "catalysts": [
-            "Merger closing → May 2025 → Re-rating",
-            "Valentine production → Q3 2025 → Cash flow",
-            "Gold at highs → ongoing → Strong margins",
-            "Analyst coverage → post-merger → Higher multiple"
-        ],
-
-        "timeline": {
-            "0_3_months": "Merger close",
-            "3_6_months": "Valentine ramp begins",
-            "6_12_months": "Full production, synergies"
-        },
-
-        "risks": [
-            "MERGER: Could be delayed",
-            "GOLD: Price could fall significantly",
-            "OPERATIONAL: Valentine delays/cost overruns",
-            "POLITICAL: Nicaragua"
-        ],
-
-        "invalidation": "Gold below $2,500/oz long-term or merger terminated.",
+        
+        "risks": "MERGER: Could delay | GOLD: -20%+ possible | OPERATIONAL: Cost overruns | POLITICAL: Nicaragua",
+        
+        "invalidation": "Gold below $2,500/oz long-term or merger killed",
         "conviction": "8/10"
     },
 
     "SHOP": {
         "name": "Shopify Inc",
-        "sector": "E-commerce / Technology",
+        "sector": "E-commerce / Tech",
         "current_price": 0,
         "price_target": "$225",
         "timeframe": "12 months",
         "upside": "30-40%",
         "support": "$155",
         "resistance": "$250",
-
-        "macro_impact": """🌍 MACRO TAILWINDS:
-• Fed rates stabilizing: No more rate shock fears = GROWTH STOCK BENEFIT
-• AI boom: Shopify AI tools = DIRECT COMPETITIVE ADVANTAGE
-• Consumer spending resilient: Despite inflation, e-commerce growing
-• CAD weakness: Makes Canadian tech acquisition attractive
-• B2B e-commerce: Untapped market = FUTURE GROWTH""",
-
-        "fundamental": """Dominant e-commerce platform. Q4 2025: $3.7B revenue (+26%), $124B GMV (+31%). 
-
-AI integration meaningful - tools for merchants increasing stickiness. B2B channel underappreciated - 118 of Top 2000 retailers use Shopify.
-
-At ~20x forward revenue for 30%+ grower = justified premium.""",
-
+        "entry_zone": "$160-$180",
+        "stop_loss": "$140",
+        "setup_type": "Growth Stock",
+        "quick_take": "Dominant platform + AI tailwinds = best Canadian tech",
+        
+        "why_now": "⚡ WHY NOW?\n• AI tools driving retention\n• B2B = untapped market\n• Q4: $3.7B revenue (+26%)\n• Fed rates stabilizing",
+        
+        "key_numbers": "📊 KEY NUMBERS:\n• Revenue: +26% YoY\n• GMV: $124B (+31%)\n• Take rate: Expanding\n• Valuation: 20x forward",
+        
+        "market_psychology": "🧠 Safe growth stock - institutions heavy, retail loves. Not meme but not boring. GARP.",
+        
+        "missed_entry": "🤔 MISSED ENTRY?\nPullback to $160 = strong buy. Support $155. If runs to $200+ → wait consolidation.",
+        
+        "macro_impact": "🌍 MACRO: Fed stable = growth benefit | AI boom = competitive edge | CAD weak = attractive",
+        
+        "fundamental": "Dominant platform. Q4: $3.7B revenue, $124B GMV (+31%). AI integration = stickiness. B2B underappreciated.",
+        
         "news": [
-            "Q4 2025: $3.7B revenue (+26%), $124B GMV (+31%) - Investing.com",
-            "Q3 2025: $2.84B revenue, $92B GMV - Digital Commerce 360",
-            "118 of Top 2000 retailers use Shopify - Digital Commerce 360",
-            "AI commerce tools driving retention - earnings"
+            "Q4 $3.7B revenue (+26%) - Investing.com",
+            "118 Top 2000 retailers - Digital Commerce 360",
+            "AI tools driving retention - earnings"
         ],
-
-        "sentiment": {
-            "bullish_why": "30%+ growth, AI tailwinds, B2B expansion, dominant position",
-            "bearish_why": "Expensive, Amazon competition, merchant concentration",
-            "overall": "Strong bullish - consensus growth stock.",
-            "trend": "Strong/Increasing"
-        },
-
-        "positioning": {
-            "institutional": "Major funds own. Growth fund favorite.",
-            "insiders": "Tobi occasionally sells for taxes - not concerning.",
-            "short_interest": "Moderate - growth stocks attract shorts.",
-            "options": "Heavy activity - all strikes."
-        },
-
-        "catalysts": [
-            "AI commerce → 2025 → Higher take rates",
-            "B2B expansion → 2025-2026 → New revenue",
-            "Fulfillment scaling → 2025-2026 → Margin expansion",
-            "Holiday season → Q4 2025 → Beat estimates"
-        ],
-
-        "timeline": {
-            "0_3_months": "Q2 earnings, AI features",
-            "3_6_months": "B2B momentum, fulfillment updates",
-            "6_12_months": "Holiday season, full-year clarity"
-        },
-
-        "risks": [
-            "VALUATION: Expensive if growth slows",
-            "COMPETITION: Amazon constantly improving",
-            "MERCHANT: Large merchants leaving would hurt",
-            "INVESTMENT: Fulfillment pressure margins"
-        ],
-
-        "invalidation": "GMV growth below 15% for two quarters.",
+        
+        "risks": "VALUATION: Expensive if growth slows | COMPETITION: Amazon | MERCHANT: Large leaving",
+        
+        "invalidation": "GMV growth below 15% for two quarters",
         "conviction": "8/10"
     },
 
@@ -271,129 +171,70 @@ At ~20x forward revenue for 30%+ grower = justified premium.""",
         "upside": "25-35%",
         "support": "$120",
         "resistance": "$185",
-
-        "macro_impact": """🌍 MACRO HEADWINDS/CATALYST:
-• High interest rates: Borrowing costs high = SHORT-TERM HEADWIND
-• Consumer spending pressure: Inflation hurting budgets = RISK
-• BUT: Economic uncertainty = more people need alternative lending
-• US expansion opportunity: 10X larger market = MASSIVE UPSIDE
-• Credit cycle: If recession = loan losses increase""",
-
-        "fundamental": """Canada's largest non-prime lender. 20%+ annual growth, 60%+ margins. Superior underwriting = better risk assessment.
-
-US expansion = $100B+ market opportunity. Proven model replicating in US.
-
-~12x earnings for 20%+ grower = cheap. If US works = growth accelerates.""",
-
+        "entry_zone": "$125-$145",
+        "stop_loss": "$110",
+        "setup_type": "Fintech Growth",
+        "quick_take": "Growth at reasonable price + US expansion = under-the-radar",
+        
+        "why_now": "⚡ WHY NOW?\n• US expansion = 10X market\n• 20%+ growth, 60%+ margins\n• Trading 12x earnings = cheap\n• Credit quality holding",
+        
+        "key_numbers": "📊 KEY NUMBERS:\n• Growth: +20% annually\n• Margins: 60%+\n• US market: $100B vs $10B Canada\n• PE: 12x for 20% grower",
+        
+        "market_psychology": "🧠 Not hot on Reddit. Quiet winner - institutions own but not crowded. Patient capital play.",
+        
+        "missed_entry": "🤔 MISSED ENTRY?\nPullback to $125 = good entry. Support $120. Wait US expansion news before adding size.",
+        
+        "macro_impact": "🌍 MACRO: High rates = headwind | BUT: economic uncertainty = more need lending | US = massive TAM",
+        
+        "fundamental": "Canada's largest non-prime lender. 20%+ growth, 60%+ margins. Superior underwriting. US = $100B+ opportunity.",
+        
         "news": [
-            "20%+ annual revenue growth - company reports",
+            "20%+ revenue growth - reports",
             "60%+ gross margins - financials",
-            "US market 10X Canada - industry data",
-            "Proprietary underwriting - competitive advantage"
+            "US market 10X Canada - industry"
         ],
-
-        "sentiment": {
-            "bullish_why": "Growth at reasonable price, US runway, fintech disruption",
-            "bearish_why": "Credit cycle risk, regulation, economic downturn",
-            "overall": "Neutral to bullish - waiting for US news.",
-            "trend": "Stable/Neutral"
-        },
-
-        "positioning": {
-            "institutional": "Some growth funds own. Not widely held.",
-            "insiders": "Recent insider buying.",
-            "short_interest": "Moderate - financial sector always has shorts.",
-            "options": "Some activity."
-        },
-
-        "catalysts": [
-            "US expansion results → 2025 → Prove thesis",
-            "Market share gains → ongoing → Growth",
-            "Margin expansion → 2025-2026 → Profits",
-            "US acquisitions → 2025-2026 → Accelerate"
-        ],
-
-        "timeline": {
-            "0_3_months": "Q1 results, US pilot data",
-            "3_6_months": "US expansion announcements",
-            "6_12_months": "US scale, model proof"
-        },
-
-        "risks": [
-            "CREDIT: Downturn hurts portfolio",
-            "REGULATION: Lending regulatory risk",
-            "COMPETITION: Banks could get aggressive",
-            "EXECUTION: US expansion could fail"
-        ],
-
-        "invalidation": "Credit losses above 8% or US expansion abandoned.",
+        
+        "risks": "CREDIT: Downturn hurts | REGULATION: Lending risk | COMPETITION: Banks",
+        
+        "invalidation": "Credit losses above 8% or US expansion abandoned",
         "conviction": "7/10"
     },
 
     "BB": {
         "name": "BlackBerry Limited",
-        "sector": "Enterprise Software / Cybersecurity",
+        "sector": "Enterprise Software",
         "current_price": 0,
         "price_target": "$7.00",
         "timeframe": "18-24 months",
         "upside": "80-100%",
         "support": "$3.50",
         "resistance": "$8.00",
-
-        "macro_impact": """🌍 MACRO TAILWINDS:
-• AI boom: Cybersecurity demand exploding = DIRECT BENEFIT
-• Connected cars: EV revolution = QNX embedded software demand
-• Government spending: Defense budgets increasing = CONTRACTS
-• Remote work: Endpoint security more important than ever
-• 5G rollout: More connected devices = MORE QNX OPPORTUNITIES""",
-
-        "fundamental": """Turnaround real. Built QNX (200M+ cars) + Cylance (cybersecurity). QNX alone could be worth current market cap.
-
-Automotive OS market growing - cars becoming computers. QNX safety certifications take years to replicate.
-
-Cylance - AI-powered security. Growing market. Cost cuts done, focused on profitability.""",
-
+        "entry_zone": "$3.50-$4.50",
+        "stop_loss": "$2.80",
+        "setup_type": "Value Turnaround",
+        "quick_take": "Hidden value in QNX + cybersecurity = free option on EV revolution",
+        
+        "why_now": "⚡ WHY NOW?\n• QNX in 200M+ cars\n• AI = cybersecurity demand exploding\n• Cost cuts done = path to profit\n• Connected car = multi-year tailwind",
+        
+        "key_numbers": "📊 KEY NUMBERS:\n• QNX: 200M+ cars\n• Auto OS market: +15% annually\n• Cybersecurity: $200B+ market\n• Valuation: QNX alone = current cap",
+        
+        "market_psychology": "🧠 Meme stock history = some holding from 2021. Not loved but not hated. Free option on revolution.",
+        
+        "missed_entry": "🤔 MISSED ENTRY?\nAccumulate $3.50-$4.50. Breaks $5.50 with volume → add. Patient - longer term play.",
+        
+        "macro_impact": "🌍 MACRO: AI boom = security demand | Connected cars = QNX demand | Government spending = contracts",
+        
+        "fundamental": "Built QNX (200M cars) + Cylance (cybersecurity). QNX alone could be worth current cap. Auto OS growing. Cost cuts done.",
+        
         "news": [
-            "QNX in 200M+ cars worldwide - company data",
-            "Automotive OS market growing 15%+ - industry",
-            "Cost reduction complete, path to profitability",
-            "Cylance gaining enterprise traction"
+            "QNX 200M+ cars - company",
+            "Auto OS +15% annually - industry",
+            "Cost reduction complete - financials"
         ],
-
-        "sentiment": {
-            "bullish_why": "Hidden value in QNX, turnaround, cybersecurity tailwinds",
-            "bearish_why": "Not consistently profitable, competition, timing",
-            "overall": "Neutral - not hated but not loved.",
-            "trend": "Stable/Neutral"
-        },
-
-        "positioning": {
-            "institutional": "Limited. Value funds occasionally mention.",
-            "insiders": "No significant recent buying.",
-            "short_interest": "Moderate - meme stock history attracts shorts.",
-            "options": "Some activity on moves."
-        },
-
-        "catalysts": [
-            "Automotive partnerships → 2025-2026 → Revenue",
-            "Connected car revolution → ongoing → QNX demand",
-            "Enterprise contracts → 2025 → Cylance growth",
-            "AI/security news → could spark rally"
-        ],
-
-        "timeline": {
-            "0_3_months": "Partnership announcements possible",
-            "3_6_months": "QNX design wins, enterprise deals",
-            "6_12_months": "Profitability clarity, car launches"
-        },
-
-        "risks": [
-            "COMPETITION: Big tech in automotive OS",
-            "TIMING: Car software adoption takes years",
-            "PROFITABILITY: Still not consistently profitable"
-        ],
-
-        "invalidation": "QNX loses major automotive design win.",
+        
+        "risks": "COMPETITION: Big tech in auto | TIMING: Years to materialize | PROFITABILITY: Not consistent",
+        
+        "invalidation": "QNX loses major automotive design win",
         "conviction": "6/10"
     },
 
@@ -406,73 +247,41 @@ Cylance - AI-powered security. Growing market. Cost cuts done, focused on profit
         "upside": "20-25%",
         "support": "$140",
         "resistance": "$180",
-
-        "macro_impact": """🌍 MACRO TAILWINDS:
-• Consumer spending pressure: Inflation = MORE DOLLAR STORE SHOPPERS
-• Economic uncertainty: Defensive play in demand
-• Interest rate stability: No headwinds to consumer
-• CAD weakness: Import costs up BUT competitive position strong
-• Consumer shift: From premium to value retailers ACCELERATING""",
-
-        "fundamental": """Undisputed Canadian discount king. 1,400+ stores, path to 2,000+. Everything $1-$5.
-
-Economic uncertainty = consumers shift to value. Pattern repeated through recessions.
-
-Valuation: ~25x earnings for 5%+ same-store grower = reasonable for defensive.""",
-
+        "entry_zone": "$140-$155",
+        "stop_loss": "$130",
+        "setup_type": "Defensive Growth",
+        "quick_take": "Boring but solid + consumer shift to value + store expansion",
+        
+        "why_now": "⚡ WHY NOW?\n• Consumer pressure = more dollar shoppers\n• Economic uncertainty = defensive demand\n• 1,400→2,000+ stores\n• Private-label driving margins",
+        
+        "key_numbers": "📊 KEY NUMBERS:\n• Stores: 1,400 → 2,000+\n• Same-store: +5%+\n• Private-label: Higher margins\n• PE: 25x for defensive",
+        
+        "market_psychology": "🧠 Boring is the point - portfolio hedge. Won't make rich but won't lose. Dividend investors love.",
+        
+        "missed_entry": "🤔 MISSED ENTRY?\nBuy any dip to $140. Hold-forever stock. Add on weakness. Support very strong.",
+        
+        "macro_impact": "🌍 MACRO: Consumer pressure = value shoppers | Uncertainty = defensive | Rate stable = spending OK",
+        
+        "fundamental": "Canadian discount king. 1,400→2,000 stores. Everything $1-$5. Economic uncertainty = value shift. Valuation reasonable.",
+        
         "news": [
-            "1,400+ stores, path to 2,000+ - company guidance",
-            "Consistent 5%+ same-store growth - historical",
-            "Private-label drives margins - company data",
-            "Defensive in downturns - historical pattern"
+            "1,400→2,000 stores - company",
+            "5%+ same-store growth - historical",
+            "Private-label margins - data"
         ],
-
-        "sentiment": {
-            "bullish_why": "Defensive, store expansion, consumer shift to value",
-            "bearish_why": "Slow growth, competition, spending collapse risk",
-            "overall": "Steady - boring is the point.",
-            "trend": "Stable"
-        },
-
-        "positioning": {
-            "institutional": "Defensive funds, dividend funds own.",
-            "insiders": "Management stable.",
-            "short_interest": "Low - boring stock.",
-            "options": "Limited - covered calls."
-        },
-
-        "catalysts": [
-            "New stores → ongoing → Unit growth",
-            "Economic uncertainty → ongoing → More shoppers",
-            "Private-label → 2025 → Margin improvement",
-            "E-commerce → 2025 → New channel"
-        ],
-
-        "timeline": {
-            "0_3_months": "Q4 holiday results",
-            "3_6_months": "New store rollout",
-            "6_12_months": "E-commerce traction, full year"
-        },
-
-        "risks": [
-            "CONSUMER: Spending collapse would hurt",
-            "COMPETITION: Dollar General expanding Canada",
-            "SUPPLY: Cost inflation pressure margins"
-        ],
-
-        "invalidation": "Same-store sales negative two quarters.",
+        
+        "risks": "CONSUMER: Spending collapse | COMPETITION: Dollar General",
+        
+        "invalidation": "Same-store sales negative two quarters",
         "conviction": "8/10"
     },
 }
 
 
 def get_current_prices():
-    """Fetch current prices for all stocks"""
-    tickers = {
-        "NANO": "NANO.TO", "CXB": "CXB.TO", "SHOP": "SHOP.TO",
-        "GSY": "GSY.TO", "BB": "BB.TO", "DOL": "DOL.TO",
-    }
-    
+    """Fetch prices"""
+    tickers = {"NANO": "NANO.TO", "CXB": "CXB.TO", "SHOP": "SHOP.TO",
+               "GSY": "GSY.TO", "BB": "BB.TO", "DOL": "DOL.TO"}
     prices = {}
     for symbol, tsx in tickers.items():
         try:
@@ -481,201 +290,155 @@ def get_current_prices():
             prices[symbol] = info.get('currentPrice', 0)
         except:
             prices[symbol] = 0
-    
     return prices
 
 
-def generate_email_content(prices: dict) -> str:
-    """Generate the full professional email"""
+def generate_email(prices: dict) -> str:
+    """Generate visual email"""
     
     for symbol in STOCK_ANALYSIS:
         if symbol in prices:
             STOCK_ANALYSIS[symbol]['current_price'] = prices[symbol]
     
     sorted_stocks = sorted(STOCK_ANALYSIS.items(), key=lambda x: x[1]['upside'], reverse=True)
-    best_pick = sorted_stocks[0]
+    best = sorted_stocks[0][1]
+    best_sym = sorted_stocks[0][0]
     
     email = f"""
-Subject: 🚀 HIGH-CONVICTION STOCK PICKS (MACRO-INFORMED + SENTIMENT + TECHNICAL)
+Subject: 🚀 HIGH-CONVICTION STOCK PICKS (VISUAL + MACRO + SENTIMENT)
 
 
 ---
-
-Hi,
-
-
-After analyzing market data, real-world developments, investor sentiment, and GLOBAL MACRO EVENTS, here are the highest-conviction opportunities:
-
 
 {MACRO_CONTEXT}
 
 
 ---
 
-
-⭐⭐⭐ BEST PICK: {best_pick[0]} - {best_pick[1]['name']} ⭐⭐⭐
-
-
-Current Price: ${best_pick[1]['current_price']:.2f} (CAD)
-Price Target: {best_pick[1]['price_target']}
-Timeframe: {best_pick[1]['timeframe']}
-Upside Potential: {best_pick[1]['upside']}
-Sector: {best_pick[1]['sector']}
+{"="*60}
+⭐⭐⭐ BEST PICK: {best_sym} - {best['name']} ⭐⭐⭐
+{"="*60}
 
 
----
+📊 SNAPSHOT (AT A GLANCE)
 
-{best_pick[1]['macro_impact']}
-
-
-📊 FUNDAMENTAL THESIS:
-
-
-{best_pick[1]['fundamental']}
+🟢 Current Price: ${best['current_price']:.2f}
+🔵 Target: {best['price_target']}
+🚀 Upside: {best['upside']}
+⏱️ Timeframe: {best['timeframe']}
+⭐ Conviction: {best['conviction']}/10
 
 
-📰 NEWS & EVIDENCE:
+💰 TRADE SETUP
+
+🟢 Entry Zone: {best['entry_zone']}
+🔴 Target: {best['price_target']}
+🛑 Stop Loss: {best['stop_loss']}
 
 
-"""
-    for ev in best_pick[1]['news']:
-        email += f"- {ev}\n"
-    
-    sent = best_pick[1]['sentiment']
-    email += f"""
+🧩 SETUP TYPE: {best['setup_type']}
+💡 QUICK TAKE: {best['quick_take']}
 
 
-💬 MARKET SENTIMENT:
+{best['why_now']}
 
 
-Reddit:
-- Bull case: {sent['bullish_why']}
-- Bear case: {sent['bearish_why']}
-
-Overall: {sent['overall']} ({sent['trend']})
+{best['key_numbers']}
 
 
-📊 POSITIONING & FLOW:
+{best['market_psychology']}
 
 
-- Institutional: {best_pick[1]['positioning']['institutional']}
-- Insider: {best_pick[1]['positioning']['insiders']}
-- Short interest: {best_pick[1]['positioning']['short_interest']}
+{best['missed_entry']}
 
 
-🔥 KEY CATALYSTS:
+🌍 MACRO:
+
+
+{best['macro_impact']}
+
+
+📰 NEWS:
 
 
 """
-    for cat in best_pick[1]['catalysts']:
-        email += f"- {cat}\n"
-    
-    tl = best_pick[1]['timeline']
-    email += f"""
-
-
-⏳ TIMELINE:
-
-
-0-3 months: {tl['0_3_months']}
-3-6 months: {tl['3_6_months']}
-6-12 months: {tl['6_12_months']}
-
-
-💰 VALUATION:
-
-
-{best_pick[1]['upside']} upside to {best_pick[1]['price_target']}.
-
-
-📉 TECHNICAL:
-
-
-Support: ${best_pick[1]['support']} | Resistance: ${best_pick[1]['resistance']}
-
-
-⚠️ RISKS:
-
-
-"""
-    for risk in best_pick[1]['risks']:
-        email += f"- {risk}\n"
+    for ev in best['news'][:3]:
+        email += f"• {ev}\n"
     
     email += f"""
 
 
-🚨 INVALIDATION:
+⚠️ RISKS: {best['risks']}
 
 
-Thesis wrong if: {best_pick[1]['invalidation']}
+🚨 INVALIDATION: {best['invalidation']}
 
 
-⭐ CONVICTION: {best_pick[1]['conviction']}/10
+{"="*60}
 
 
----
+📈 QUICK PICKS TABLE
 
+
+| Stock | Price → Target | Upside | Setup |
+|-------|----------------|--------|-------|
 """
-    
     for symbol, data in sorted_stocks[1:4]:
+        email += f"| {symbol} | ${data['current_price']:.2f} → {data['price_target']} | {data['upside']} | {data['setup_type']} |\n"
+    
+    # Detailed additional picks
+    for symbol, data in sorted_stocks[1:3]:
         email += f"""
 
 
+---
 📈 {data['name']} ({symbol})
+---
 
+💡 QUICK TAKE: {data['quick_take']}
 
-Current: ${data['current_price']:.2f} → Target: {data['price_target']} ({data['upside']})
+📊 SNAPSHOT: ${data['current_price']:.2f} → {data['price_target']} ({data['upside']})
 
-{data['macro_impact']}
+🟢 Entry: {data['entry_zone']} | 🔴 Target: {data['price_target']} | 🛑 Stop: {data['stop_loss']}
 
-Catalyst: {data['catalysts'][0]}
+{data['why_now']}
 
+🔥 CATALYST: {data['catalysts'][0] if 'catalysts' in data else 'See full analysis'}
 """
+    
+    # Watchlist table
+    email += f"""
+
+
+---
+
+📋 WATCHLIST
+
+
+| Symbol | Current | Target | Upside | Conviction |
+|--------|---------|--------|--------|------------|
+"""
+    for symbol, data in sorted_stocks:
+        email += f"| {symbol} | ${data['current_price']:.2f} | {data['price_target']} | {data['upside']} | {data['conviction']}/10 |\n"
     
     email += f"""
 
 
 ---
 
-📊 MARKET INTELLIGENCE SUMMARY:
+🏁 FINAL TAKE
+
+Best: 👉 **{best_sym} - {best['name']}**
+
+{best['quick_take']}
+
+Why: {best['fundamental'][:200]}...
 
 
-🌍 MACRO DRIVING MARKETS NOW:
-
-• Fed/BoC: Rates stable → Growth stocks favored
-• Gold: At highs → Miners strong (CXB)
-• AI boom: Tech leaders outperform (SHOP)
-• CAD weak: Exporters/Resources benefit
-• Consumer: Shifting to value (DOL)
-
-
-💰 WHERE MONEY FLOWING:
-
-
-• INTO: Tech (AI), Gold, Defensive Retail
-• OUT OF: Rate-sensitive sectors
-• WATCH: Battery/EV supply chain (NANO)
-
-
----
-
-🏁 FINAL TAKE:
-
-
-Best opportunity: 👉 **{best_pick[0]} - {best_pick[1]['name']}**
-
-Why: {best_pick[1]['fundamental'][:300]}
-
-Macro tailwind: {best_pick[1]['macro_impact'][:200]}
-
-
----
-
-DISCLAIMER: Educational only. Not financial advice. Do your own research.
+⚠️ DISCLAIMER: Educational only. Not financial advice.
 
 Generated: {datetime.now().strftime('%Y-%m-%d %H:%M')} CAD
 """
-
     return email
 
 
@@ -685,11 +448,9 @@ def send_email(subject: str, content: str):
     email_pass = os.environ.get("EMAIL_PASSWORD", "")
     email_to = os.environ.get("EMAIL_TO", "peterm2543@gmail.com")
     email_host = os.environ.get("EMAIL_HOST", "")
-    email_port = int(os.environ.get("EMAIL_PORT", "587"))
     
-    if not email_host or not email_user or not email_pass:
+    if not email_host or not email_user:
         print(f"❌ Email not configured")
-        print(f"HOST={email_host}, USER={email_user}, TO={email_to}")
         return False
     
     msg = MIMEMultipart()
@@ -699,41 +460,38 @@ def send_email(subject: str, content: str):
     msg.attach(MIMEText(content, 'plain'))
     
     try:
-        server = smtplib.SMTP(email_host, email_port)
+        server = smtplib.SMTP(email_host, int(os.environ.get("EMAIL_PORT", "587")))
         server.starttls()
         server.login(email_user, email_pass)
         server.send_message(msg)
         server.quit()
-        print(f"✅ Email sent to {email_to}")
+        print(f"✅ Sent to {email_to}")
         return True
     except Exception as e:
-        print(f"❌ Email error: {e}")
+        print(f"❌ Error: {e}")
         return False
 
 
 @click.command()
-@click.option("--email", "-e", is_flag=True, help="Send via email")
+@click.option("--email", "-e", is_flag=True)
 def main(email: bool):
-    """Ultimate Stock Analysis with Macro Intelligence"""
-    
-    click.echo(f"\n📊 GENERATING MACRO-INFORMED ANALYSIS...")
-    click.echo(f"{'='*50}\n")
+    click.echo("\n📊 GENERATING VISUAL ANALYSIS...\n")
     
     click.echo("💰 Fetching prices...")
     prices = get_current_prices()
     for symbol, price in prices.items():
         click.echo(f"   {symbol}: ${price:.2f}")
     
-    click.echo(f"\n📝 Generating analysis...")
-    content = generate_email_content(prices)
+    click.echo(f"\n📝 Generating...")
+    content = generate_email(prices)
     
     click.echo(f"\n{'='*50}")
     print(content[:1200])
-    click.echo(f"\n... (truncated)")
+    click.echo("\n... (truncated)")
     
     if email:
         click.echo(f"\n📧 Sending...")
-        send_email("🚀 High-Conviction Stock Picks (MACRO + SENTIMENT)", content)
+        send_email("🚀 High-Conviction Stock Picks (VISUAL)", content)
 
 
 if __name__ == "__main__":
