@@ -7,6 +7,7 @@ Usage:
     python alert_agent.py add TSLA 150 above
     python alert_agent.py list
     python alert_agent.py check
+    python alert_agent.py check --discord
 """
 
 import click
@@ -14,9 +15,11 @@ import json
 import os
 import time
 import yfinance as yf
+import requests
 from datetime import datetime
 
 ALERT_FILE = "alerts.json"
+DISCORD_WEBHOOK = os.environ.get("DISCORD_WEBHOOK", "")
 
 
 def load_alerts():
@@ -31,10 +34,26 @@ def save_alerts(alerts):
         json.dump(alerts, f, indent=2)
 
 
-def check_alerts():
+def send_discord(message: str, webhook_url: str = None):
+    """Send alert to Discord"""
+    url = webhook_url or DISCORD_WEBHOOK
+    if not url:
+        return False
+    
+    data = {"content": message}
+    
+    try:
+        response = requests.post(url, json=data, timeout=10)
+        return response.status_code == 204
+    except:
+        return False
+
+
+def check_alerts(discord: bool = False, webhook: str = None):
     """Check all alerts and return triggered ones"""
     alerts = load_alerts()
     triggered = []
+    message = "🚨 **PRICE ALERT TRIGGERED**\n\n"
     
     for alert in alerts:
         symbol = alert['symbol']
@@ -51,14 +70,20 @@ def check_alerts():
                     'current_price': current,
                     'triggered_at': datetime.now().isoformat()
                 })
+                message += f"⚠️ **{symbol}** hit ${current:.2f} (above ${target})\n"
             elif direction == 'below' and current <= target:
                 triggered.append({
                     **alert,
                     'current_price': current,
                     'triggered_at': datetime.now().isoformat()
                 })
+                message += f"⚠️ **{symbol}** dropped to ${current:.2f} (below ${target})\n"
         except:
             pass
+    
+    # Send Discord if triggered and requested
+    if triggered and discord:
+        send_discord(message, webhook)
     
     return triggered
 
@@ -112,7 +137,9 @@ def list():
 
 
 @cli.command()
-def check():
+@click.option("--discord", "-d", is_flag=True, help="Send to Discord if triggered")
+@click.option("--webhook", "-w", default=None, help="Discord webhook URL")
+def check(discord: bool, webhook: str):
     """Check alerts"""
     alerts = load_alerts()
     
@@ -122,7 +149,7 @@ def check():
     
     click.echo("🔍 Checking alerts...\n")
     
-    triggered = check_alerts()
+    triggered = check_alerts(discord, webhook)
     
     if triggered:
         click.echo("🚨 TRIGGERED ALERTS:")

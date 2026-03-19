@@ -5,6 +5,8 @@ Manager → Planner → (Researcher + Quant + Sentiment + Risk) → Synthesizer 
 Usage:
     python multi_stock_agent.py AAPL
     python multi_stock_agent.py TSLA --deep
+    python multi_stock_agent.py AAPL --discord
+    python multi_stock_agent.py AAPL --output report.txt
 """
 
 import sys
@@ -36,6 +38,7 @@ except ImportError:
 # Configuration
 OLLAMA_URL = "http://localhost:11434/api/generate"
 DEFAULT_MODEL = os.environ.get("OLLAMA_MODEL", "qwen2.5:0.5b")
+DISCORD_WEBHOOK = os.environ.get("DISCORD_WEBHOOK", "")
 
 
 # ============================================================================
@@ -519,10 +522,38 @@ Respond with:
 # MAIN
 # ============================================================================
 
+def save_to_file(content: str, filename: str):
+    """Save results to file"""
+    with open(filename, 'a') as f:
+        f.write(content + "\n")
+    click.echo(f"✅ Saved to {filename}")
+
+
+def send_discord(content: str, webhook_url: str = None):
+    """Send results to Discord"""
+    url = webhook_url or DISCORD_WEBHOOK
+    if not url:
+        return False
+    
+    if len(content) > 1900:
+        content = content[:1900] + "..."
+    
+    data = {"content": content}
+    
+    try:
+        response = requests.post(url, json=data, timeout=10)
+        return response.status_code == 204
+    except:
+        return False
+
+
 @click.command()
 @click.argument("symbol")
 @click.option("--model", "-m", default=None, help="Ollama model")
-def main(symbol: str, model: str):
+@click.option("--output", "-o", default=None, help="Save to file")
+@click.option("--discord", "-d", is_flag=True, help="Send to Discord")
+@click.option("--webhook", "-w", default=None, help="Discord webhook URL")
+def main(symbol: str, model: str, output: str, discord: bool, webhook: str):
     """Multi-Agent Stock Analysis System"""
     
     model = model or DEFAULT_MODEL
@@ -541,15 +572,35 @@ def main(symbol: str, model: str):
     final = results['final']
     
     emoji = "🟢" if final['decision'] == "BUY" else "🔴" if final['decision'] == "SELL" else "🟡"
-    click.echo(f"\n{emoji} {final['decision']} {final['symbol']} - {final['company']}")
+    decision_text = f"\n{emoji} {final['decision']} {final['symbol']} - {final['company']}"
+    click.echo(decision_text)
     
+    rationale = ""
     if 'ai_rationale' in final:
-        click.echo(f"\n💡 {final['ai_rationale']}")
+        rationale = f"\n💡 {final['ai_rationale']}"
+        click.echo(rationale)
     
-    click.echo(f"\n📊 Signal Summary:")
-    click.echo(f"   Bullish: {final['bullish_count']} | Bearish: {final['bearish_count']}")
+    signal_text = f"\n📊 Signal Summary: Bullish: {final['bullish_count']} | Bearish: {final['bearish_count']}"
+    click.echo(signal_text)
     
     click.echo(f"\n✅ Analysis complete!\n")
+    
+    # Save to file
+    full_content = f"""
+📊 Multi-Agent Stock Analysis: {symbol.upper()}
+{decision_text}
+{rationale}
+{signal_text}
+Generated: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}
+"""
+    
+    if output:
+        save_to_file(full_content, output)
+    
+    # Send to Discord
+    if discord:
+        discord_content = f"📊 **Stock Analysis: {symbol.upper()}**\n{emoji} **{final['decision']}**\n{final.get('ai_rationale', '')}"
+        send_discord(discord_content, webhook)
 
 
 if __name__ == "__main__":
