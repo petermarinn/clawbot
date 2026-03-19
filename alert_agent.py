@@ -7,7 +7,7 @@ Usage:
     python alert_agent.py add TSLA 150 above
     python alert_agent.py list
     python alert_agent.py check
-    python alert_agent.py check --discord
+    python alert_agent.py check --email
 """
 
 import click
@@ -15,11 +15,20 @@ import json
 import os
 import time
 import yfinance as yf
-import requests
+import smtplib
+from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
 from datetime import datetime
 
 ALERT_FILE = "alerts.json"
-DISCORD_WEBHOOK = os.environ.get("DISCORD_WEBHOOK", "")
+
+# Email settings
+EMAIL_HOST = os.environ.get("EMAIL_HOST", "")
+EMAIL_PORT = int(os.environ.get("EMAIL_PORT", "587"))
+EMAIL_USER = os.environ.get("EMAIL_USER", "")
+EMAIL_PASSWORD = os.environ.get("EMAIL_PASSWORD", "")
+EMAIL_FROM = os.environ.get("EMAIL_FROM", "")
+EMAIL_TO = os.environ.get("EMAIL_TO", "")
 
 
 def load_alerts():
@@ -34,26 +43,40 @@ def save_alerts(alerts):
         json.dump(alerts, f, indent=2)
 
 
-def send_discord(message: str, webhook_url: str = None):
-    """Send alert to Discord"""
-    url = webhook_url or DISCORD_WEBHOOK
-    if not url:
+def send_email(subject: str, content: str, to_email: str = None):
+    """Send alert via email"""
+    host = EMAIL_HOST
+    port = EMAIL_PORT
+    user = EMAIL_USER
+    password = EMAIL_PASSWORD
+    from_email = EMAIL_FROM
+    to = to_email or EMAIL_TO
+    
+    if not host or not user or not to:
         return False
     
-    data = {"content": message}
+    msg = MIMEMultipart()
+    msg['From'] = from_email or user
+    msg['To'] = to
+    msg['Subject'] = subject
+    msg.attach(MIMEText(content, 'plain'))
     
     try:
-        response = requests.post(url, json=data, timeout=10)
-        return response.status_code == 204
+        server = smtplib.SMTP(host, port)
+        server.starttls()
+        server.login(user, password)
+        server.send_message(msg)
+        server.quit()
+        return True
     except:
         return False
 
 
-def check_alerts(discord: bool = False, webhook: str = None):
+def check_alerts(email: bool = False, to_email: str = None):
     """Check all alerts and return triggered ones"""
     alerts = load_alerts()
     triggered = []
-    message = "🚨 **PRICE ALERT TRIGGERED**\n\n"
+    message = "PRICE ALERT TRIGGERED\n\n"
     
     for alert in alerts:
         symbol = alert['symbol']
@@ -70,20 +93,20 @@ def check_alerts(discord: bool = False, webhook: str = None):
                     'current_price': current,
                     'triggered_at': datetime.now().isoformat()
                 })
-                message += f"⚠️ **{symbol}** hit ${current:.2f} (above ${target})\n"
+                message += f"ALERT: {symbol} hit ${current:.2f} (above ${target})\n"
             elif direction == 'below' and current <= target:
                 triggered.append({
                     **alert,
                     'current_price': current,
                     'triggered_at': datetime.now().isoformat()
                 })
-                message += f"⚠️ **{symbol}** dropped to ${current:.2f} (below ${target})\n"
+                message += f"ALERT: {symbol} dropped to ${current:.2f} (below ${target})\n"
         except:
             pass
     
-    # Send Discord if triggered and requested
-    if triggered and discord:
-        send_discord(message, webhook)
+    # Send email if triggered and requested
+    if triggered and email:
+        send_email("🚨 Stock Price Alert!", message, to_email)
     
     return triggered
 
@@ -137,9 +160,9 @@ def list():
 
 
 @cli.command()
-@click.option("--discord", "-d", is_flag=True, help="Send to Discord if triggered")
-@click.option("--webhook", "-w", default=None, help="Discord webhook URL")
-def check(discord: bool, webhook: str):
+@click.option("--email", "-e", is_flag=True, help="Send email if triggered")
+@click.option("--to", default=None, help="Email recipient")
+def check(email: bool, to: str):
     """Check alerts"""
     alerts = load_alerts()
     
@@ -149,7 +172,7 @@ def check(discord: bool, webhook: str):
     
     click.echo("🔍 Checking alerts...\n")
     
-    triggered = check_alerts(discord, webhook)
+    triggered = check_alerts(email, to)
     
     if triggered:
         click.echo("🚨 TRIGGERED ALERTS:")

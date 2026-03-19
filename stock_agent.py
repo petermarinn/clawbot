@@ -7,7 +7,7 @@ Usage:
     python stock_agent.py AAPL
     python stock_agent.py TSLA --period 1y
     python stock_agent.py AAPL --output results.txt
-    python stock_agent.py AAPL --discord
+    python stock_agent.py AAPL --email
 """
 
 import sys
@@ -15,6 +15,9 @@ import os
 import click
 import json
 from datetime import datetime
+import smtplib
+from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
 
 # Try to import yfinance (free stock data)
 try:
@@ -33,7 +36,14 @@ except ImportError:
 # Configuration
 OLLAMA_URL = "http://localhost:11434/api/generate"
 DEFAULT_MODEL = os.environ.get("OLLAMA_MODEL", "qwen2.5:0.5b")
-DISCORD_WEBHOOK = os.environ.get("DISCORD_WEBHOOK", "")
+
+# Email settings (set as environment variables)
+EMAIL_HOST = os.environ.get("EMAIL_HOST", "")
+EMAIL_PORT = int(os.environ.get("EMAIL_PORT", "587"))
+EMAIL_USER = os.environ.get("EMAIL_USER", "")
+EMAIL_PASSWORD = os.environ.get("EMAIL_PASSWORD", "")
+EMAIL_FROM = os.environ.get("EMAIL_FROM", "")
+EMAIL_TO = os.environ.get("EMAIL_TO", "")
 
 
 def get_stock_data(symbol: str, period: str = "6mo") -> dict:
@@ -173,31 +183,36 @@ def save_to_file(content: str, filename: str):
     click.echo(f"✅ Saved to {filename}")
 
 
-def send_discord(content: str, webhook_url: str = None):
-    """Send results to Discord"""
-    url = webhook_url or DISCORD_WEBHOOK
-    if not url:
-        click.echo("❌ No Discord webhook set")
+def send_email(subject: str, content: str, to_email: str = None):
+    """Send results via email"""
+    host = EMAIL_HOST
+    port = EMAIL_PORT
+    user = EMAIL_USER
+    password = EMAIL_PASSWORD
+    from_email = EMAIL_FROM
+    to = to_email or EMAIL_TO
+    
+    if not host or not user or not to:
+        click.echo("❌ Email not configured. Set EMAIL_HOST, EMAIL_USER, EMAIL_PASSWORD, EMAIL_TO")
         return False
     
-    # Discord limit is 2000 chars, truncate if needed
-    if len(content) > 1900:
-        content = content[:1900] + "..."
+    msg = MIMEMultipart()
+    msg['From'] = from_email or user
+    msg['To'] = to
+    msg['Subject'] = f"📊 Stock Analysis: {subject}"
     
-    data = {
-        "content": f"📊 **Stock Analysis**\n```\n{content}\n```"
-    }
+    msg.attach(MIMEText(content, 'plain'))
     
     try:
-        response = requests.post(url, json=data, timeout=10)
-        if response.status_code == 204:
-            click.echo("✅ Sent to Discord!")
-            return True
-        else:
-            click.echo(f"❌ Discord error: {response.status_code}")
-            return False
+        server = smtplib.SMTP(host, port)
+        server.starttls()
+        server.login(user, password)
+        server.send_message(msg)
+        server.quit()
+        click.echo(f"✅ Email sent to {to}!")
+        return True
     except Exception as e:
-        click.echo(f"❌ Discord error: {e}")
+        click.echo(f"❌ Email error: {e}")
         return False
 
 
@@ -207,9 +222,9 @@ def send_discord(content: str, webhook_url: str = None):
 @click.option("--ai/--no-ai", default=True, help="Use AI for analysis")
 @click.option("--model", "-m", default=None, help="Ollama model")
 @click.option("--output", "-o", default=None, help="Save to file")
-@click.option("--discord", "-d", is_flag=True, help="Send to Discord")
-@click.option("--webhook", "-w", default=None, help="Discord webhook URL")
-def main(symbol: str, period: str, ai: bool, model: str, output: str, discord: bool, webhook: str):
+@click.option("--email", "-e", is_flag=True, help="Send via email")
+@click.option("--to", default=None, help="Email recipient")
+def main(symbol: str, period: str, ai: bool, model: str, output: str, email: bool, to: str):
     """Stock Analysis Agent - Analyze any stock"""
     
     click.echo(f"🔍 Fetching data for {symbol.upper()}...")
@@ -244,9 +259,9 @@ def main(symbol: str, period: str, ai: bool, model: str, output: str, discord: b
     if output:
         save_to_file(full_content, output)
     
-    # Send to Discord
-    if discord:
-        send_discord(full_content, webhook)
+    # Send email
+    if email:
+        send_email(symbol.upper(), full_content, to)
     
     click.echo(f"\n✅ Analysis complete!")
 

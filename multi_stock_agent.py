@@ -5,7 +5,7 @@ Manager → Planner → (Researcher + Quant + Sentiment + Risk) → Synthesizer 
 Usage:
     python multi_stock_agent.py AAPL
     python multi_stock_agent.py TSLA --deep
-    python multi_stock_agent.py AAPL --discord
+    python multi_stock_agent.py AAPL --email
     python multi_stock_agent.py AAPL --output report.txt
 """
 
@@ -15,6 +15,9 @@ import click
 import json
 import asyncio
 from datetime import datetime
+import smtplib
+from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
 
 # Dependencies
 try:
@@ -38,7 +41,14 @@ except ImportError:
 # Configuration
 OLLAMA_URL = "http://localhost:11434/api/generate"
 DEFAULT_MODEL = os.environ.get("OLLAMA_MODEL", "qwen2.5:0.5b")
-DISCORD_WEBHOOK = os.environ.get("DISCORD_WEBHOOK", "")
+
+# Email settings
+EMAIL_HOST = os.environ.get("EMAIL_HOST", "")
+EMAIL_PORT = int(os.environ.get("EMAIL_PORT", "587"))
+EMAIL_USER = os.environ.get("EMAIL_USER", "")
+EMAIL_PASSWORD = os.environ.get("EMAIL_PASSWORD", "")
+EMAIL_FROM = os.environ.get("EMAIL_FROM", "")
+EMAIL_TO = os.environ.get("EMAIL_TO", "")
 
 
 # ============================================================================
@@ -522,6 +532,35 @@ Respond with:
 # MAIN
 # ============================================================================
 
+def send_email(subject: str, content: str, to_email: str = None):
+    """Send results via email"""
+    host = EMAIL_HOST
+    port = EMAIL_PORT
+    user = EMAIL_USER
+    password = EMAIL_PASSWORD
+    from_email = EMAIL_FROM
+    to = to_email or EMAIL_TO
+    
+    if not host or not user or not to:
+        return False
+    
+    msg = MIMEMultipart()
+    msg['From'] = from_email or user
+    msg['To'] = to
+    msg['Subject'] = f"📊 Stock Analysis: {subject}"
+    msg.attach(MIMEText(content, 'plain'))
+    
+    try:
+        server = smtplib.SMTP(host, port)
+        server.starttls()
+        server.login(user, password)
+        server.send_message(msg)
+        server.quit()
+        return True
+    except:
+        return False
+
+
 def save_to_file(content: str, filename: str):
     """Save results to file"""
     with open(filename, 'a') as f:
@@ -529,31 +568,13 @@ def save_to_file(content: str, filename: str):
     click.echo(f"✅ Saved to {filename}")
 
 
-def send_discord(content: str, webhook_url: str = None):
-    """Send results to Discord"""
-    url = webhook_url or DISCORD_WEBHOOK
-    if not url:
-        return False
-    
-    if len(content) > 1900:
-        content = content[:1900] + "..."
-    
-    data = {"content": content}
-    
-    try:
-        response = requests.post(url, json=data, timeout=10)
-        return response.status_code == 204
-    except:
-        return False
-
-
 @click.command()
 @click.argument("symbol")
 @click.option("--model", "-m", default=None, help="Ollama model")
 @click.option("--output", "-o", default=None, help="Save to file")
-@click.option("--discord", "-d", is_flag=True, help="Send to Discord")
-@click.option("--webhook", "-w", default=None, help="Discord webhook URL")
-def main(symbol: str, model: str, output: str, discord: bool, webhook: str):
+@click.option("--email", "-e", is_flag=True, help="Send via email")
+@click.option("--to", default=None, help="Email recipient")
+def main(symbol: str, model: str, output: str, email: bool, to: str):
     """Multi-Agent Stock Analysis System"""
     
     model = model or DEFAULT_MODEL
@@ -597,10 +618,20 @@ Generated: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}
     if output:
         save_to_file(full_content, output)
     
-    # Send to Discord
-    if discord:
-        discord_content = f"📊 **Stock Analysis: {symbol.upper()}**\n{emoji} **{final['decision']}**\n{final.get('ai_rationale', '')}"
-        send_discord(discord_content, webhook)
+    # Send email
+    if email:
+        email_content = f"""
+📊 Multi-Agent Stock Analysis: {symbol.upper()}
+
+{emoji} {final['decision']} - {final['company']}
+
+{final.get('ai_rationale', '')}
+
+Signals: Bullish {final['bullish_count']} | Bearish {final['bearish_count']}
+
+Generated: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}
+"""
+        send_email(symbol.upper(), email_content, to)
 
 
 if __name__ == "__main__":
