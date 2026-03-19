@@ -114,7 +114,7 @@ class CommanderAgent:
         }
         
         # Check memory for broken items
-        broken = self.memory.get("broken", [])
+        broken = self.memory.get("issues", [])
         if broken:
             analysis["issues"].extend(broken)
             analysis["recommendations"].append({

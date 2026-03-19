@@ -56,12 +56,7 @@
     "agents": "2026-03-19T10:00:00",
     "stocks": "2026-03-19T10:00:00"
   },
-  "completed_tasks": [
-    {
-      "task": "Initial setup",
-      "completed_at": "2026-03-19T10:00:00"
-    }
-  ],
+  "completed_tasks": [],
   "pending_tasks": [],
   "stocks": [
     {
@@ -104,54 +99,154 @@
   },
   "command_results": [
     {
-      "command": "Refresh Data",
-      "success": true,
-      "timestamp": "2026-03-19T11:19:21"
-    },
-    {
-      "command": "Add Stock Detail Pages",
-      "success": true,
-      "timestamp": "2026-03-19T11:45:40"
-    },
-    {
-      "command": "Add Company Logos",
-      "success": true,
-      "timestamp": "2026-03-19T12:00:00"
-    },
-    {
       "command": "Run Pre-Pull Validation",
       "success": true,
-      "timestamp": "2026-03-19T12:05:00"
+      "timestamp": "2026-03-19T19:10:25.962811"
     },
     {
       "command": "Update Website",
       "success": true,
-      "timestamp": "2026-03-19T12:05:01"
+      "timestamp": "2026-03-19T19:10:26.003980"
+    },
+    {
+      "command": "Run Pre-Pull Validation",
+      "success": true,
+      "timestamp": "2026-03-19T19:11:26.285225"
+    },
+    {
+      "command": "Update Website",
+      "success": true,
+      "timestamp": "2026-03-19T19:11:26.327303"
+    },
+    {
+      "command": "Run Pre-Pull Validation",
+      "success": true,
+      "timestamp": "2026-03-19T19:12:20.929367"
+    },
+    {
+      "command": "Update Website",
+      "success": true,
+      "timestamp": "2026-03-19T19:12:20.970938"
+    },
+    {
+      "command": "Run Pre-Pull Validation",
+      "success": true,
+      "timestamp": "2026-03-19T19:12:51.257017"
+    },
+    {
+      "command": "Update Website",
+      "success": true,
+      "timestamp": "2026-03-19T19:12:51.298212"
+    },
+    {
+      "command": "Run Pre-Pull Validation",
+      "success": true,
+      "timestamp": "2026-03-19T19:13:21.579217"
+    },
+    {
+      "command": "Update Website",
+      "success": true,
+      "timestamp": "2026-03-19T19:13:21.619906"
+    },
+    {
+      "command": "Run Pre-Pull Validation",
+      "success": true,
+      "timestamp": "2026-03-19T19:13:51.924460"
+    },
+    {
+      "command": "Update Website",
+      "success": true,
+      "timestamp": "2026-03-19T19:13:51.966208"
+    },
+    {
+      "command": "Run Pre-Pull Validation",
+      "success": true,
+      "timestamp": "2026-03-19T19:14:22.244022"
+    },
+    {
+      "command": "Update Website",
+      "success": true,
+      "timestamp": "2026-03-19T19:14:22.285537"
+    },
+    {
+      "command": "Run Pre-Pull Validation",
+      "success": true,
+      "timestamp": "2026-03-19T19:14:52.565342"
+    },
+    {
+      "command": "Update Website",
+      "success": true,
+      "timestamp": "2026-03-19T19:14:52.606619"
+    },
+    {
+      "command": "Fix: stale_data",
+      "success": true,
+      "timestamp": "2026-03-19T19:15:00.465010"
+    },
+    {
+      "command": "Fix: missing_news",
+      "success": true,
+      "timestamp": "2026-03-19T19:15:00.505753"
+    },
+    {
+      "command": "Fix Broken Items",
+      "success": true,
+      "timestamp": "2026-03-19T19:15:00.546405"
+    },
+    {
+      "command": "Run Pre-Pull Validation",
+      "success": true,
+      "timestamp": "2026-03-19T19:15:00.785204"
+    },
+    {
+      "command": "Update Website",
+      "success": true,
+      "timestamp": "2026-03-19T19:15:00.826894"
     }
   ],
-  "last_system_run": "2026-03-19T18:56:21.481196",
+  "last_system_run": "2026-03-19T19:15:00.826964",
   "last_run_success": true,
   "last_run_stats": {
-    "total": 2,
-    "success": 2,
+    "total": 5,
+    "success": 5,
     "failed": 0
   },
+  "issues": [
+    {
+      "type": "stale_data",
+      "agent": "stock_agent",
+      "description": "Stock data needs refresh"
+    },
+    {
+      "type": "missing_news",
+      "agent": "news_agent",
+      "description": "News not updated"
+    }
+  ],
   "agents": {
     "commander_agent": {
       "status": "running",
-      "last_active": "2026-03-19T18:56:45.059150"
+      "last_active": "2026-03-19T19:12:14.018608"
     },
     "master_agent": {
       "status": "running",
-      "last_active": "2026-03-19T18:56:45.059160"
+      "last_active": "2026-03-19T19:12:14.018615"
     },
     "website_agent": {
       "status": "idle",
-      "last_active": "2026-03-19T18:56:45.059162"
+      "last_active": "2026-03-19T19:12:14.018616"
     },
     "news_agent": {
       "status": "idle",
-      "last_active": "2026-03-19T18:56:45.059163"
+      "last_active": "2026-03-19T19:12:14.018617"
+    },
+    "stock_agent": {
+      "status": "idle",
+      "last_active": "2026-03-19T19:12:14.018618"
+    },
+    "portfolio_agent": {
+      "status": "idle",
+      "last_active": "2026-03-19T19:12:14.018619"
     },
     "debugger_agent": {
       "status": "idle",
@@ -170,10 +265,6 @@
       "last_active": null
     },
     "alert_agent": {
-      "status": "idle",
-      "last_active": null
-    },
-    "portfolio_agent": {
       "status": "idle",
       "last_active": null
     }
