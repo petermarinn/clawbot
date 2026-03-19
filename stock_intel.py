@@ -570,24 +570,33 @@ DISCLAIMER: This analysis is for educational purposes only. Not financial advice
 
 def send_email(subject: str, content: str):
     """Send email"""
-    if not EMAIL_HOST or not EMAIL_USER or not EMAIL_TO:
+    email_user = os.environ.get("EMAIL_USER", "")
+    email_pass = os.environ.get("EMAIL_PASSWORD", "")
+    email_to = os.environ.get("EMAIL_TO", "peterm2543@gmail.com")
+    email_host = os.environ.get("EMAIL_HOST", "")
+    email_port = int(os.environ.get("EMAIL_PORT", "587"))
+    
+    if not email_host or not email_user or not email_pass:
+        print(f"❌ Email not configured. Need: EMAIL_HOST, EMAIL_USER, EMAIL_PASSWORD")
+        print(f"Current: HOST={email_host}, USER={email_user}, TO={email_to}")
         return False
     
     msg = MIMEMultipart()
-    msg['From'] = EMAIL_USER
-    msg['To'] = EMAIL_TO
+    msg['From'] = email_user
+    msg['To'] = email_to
     msg['Subject'] = subject
     msg.attach(MIMEText(content, 'plain'))
     
     try:
-        server = smtplib.SMTP(EMAIL_HOST, EMAIL_PORT)
+        server = smtplib.SMTP(email_host, email_port)
         server.starttls()
-        server.login(EMAIL_USER, EMAIL_PASSWORD)
+        server.login(email_user, email_pass)
         server.send_message(msg)
         server.quit()
+        print(f"✅ Email sent to {email_to}")
         return True
     except Exception as e:
-        print(f"Email error: {e}")
+        print(f"❌ Email error: {e}")
         return False
 
 
