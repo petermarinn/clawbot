@@ -1,15 +1,15 @@
 {
-  "timestamp": "2026-03-19T11:45:40.504898",
+  "timestamp": "2026-03-19T18:37:06.862351",
   "command_count": 3,
   "commands": [
     {
-      "title": "Add Stock Detail Pages",
-      "objective": "Create /stock/[ticker] pages with charts, analysis, company info",
+      "title": "Add Company Logos",
+      "objective": "Display company logos on stock cards",
       "target_agent": "website_agent",
       "requirements": {
-        "action": "add_stock_pages"
+        "action": "add_logos"
       },
-      "expected_outcome": "Clickable stock cards lead to detail pages",
+      "expected_outcome": "Logos visible on all stock cards",
       "priority": "HIGH"
     },
     {
