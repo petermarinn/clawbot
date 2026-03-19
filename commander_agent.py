@@ -214,7 +214,7 @@ class CommanderAgent:
     def has_feature(self, feature_name: str) -> bool:
         """Check if a feature has been implemented"""
         features = self.memory.get("features", [])
-        return any(f.get("name") == feature_name for f in features)
+        return any(f.get("name") == feature_name  for f in features)
         
     def decide_commands(self, analysis: Dict) -> List[Dict]:
         """Decide what commands to issue based on analysis"""

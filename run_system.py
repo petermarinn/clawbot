@@ -127,7 +127,7 @@ class SystemRunner:
             # Update memory with result
             if "command_results" not in self.memory:
                 self.memory["command_results"] = []
-            self.memory["command_results"].append(results[-1])
+            self.memory["command_results"] = self.memory["command_results"][-20:] + [results[-1]]
             
         return results
         
