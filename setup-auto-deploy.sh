@@ -29,8 +29,8 @@ echo "Setting up cron job for auto-deployment..."
 # Remove existing clawbot cron entries
 crontab -l 2>/dev/null | grep -v "clawbot" > /tmp/current_cron
 
-# Add new cron job - runs every hour
-echo "0 * * * * cd $APP_DIR && git pull origin main 2>&1 | logger -t clawbot-deploy && pkill -f web_app.py && python3 web_app.py > /dev/null 2>&1 &" >> /tmp/current_cron
+# Add new cron job - runs every 15 minutes
+echo "*/15 * * * * cd $APP_DIR && git pull origin main 2>&1 | logger -t clawbot-deploy && pkill -f web_app.py && python3 web_app.py > /dev/null 2>&1 &" >> /tmp/current_cron
 
 # Install new crontab
 crontab /tmp/current_cron
