@@ -146,6 +146,9 @@ MARKET = {
 alerts = []
 alert_id = 0
 
+# ===================== PORTFOLIO =====================
+portfolio = []
+
 # ===================== BACKGROUND FETCHER =====================
 class DataFetcher:
     def __init__(self):
@@ -273,6 +276,93 @@ def api_alerts():
         return jsonify(alert)
     return jsonify(alerts)
 
+@app.route('/api/analysis/<symbol>')
+def api_analysis(symbol):
+    """Get AI analysis for a stock"""
+    stock = STOCKS.get(symbol.upper())
+    if not stock:
+        return jsonify({"error": "Stock not found"}), 404
+    
+    # Generate analysis based on available data
+    analysis = {
+        "symbol": symbol.upper(),
+        "name": stock.get("name"),
+        "current_price": stock.get("price", 0),
+        "target": stock.get("target"),
+        "upside": stock.get("upside"),
+        "sentiment": stock.get("sentiment"),
+        "conviction": stock.get("conviction"),
+        "thesis": stock.get("thesis"),
+        "risks": stock.get("risks"),
+        "catalysts": stock.get("catalysts"),
+        "sector": stock.get("sector"),
+        "setup": stock.get("setup"),
+        "recommendation": "BUY" if stock.get("conviction", 0) >= 7 else "HOLD" if stock.get("conviction", 0) >= 5 else "WATCH",
+        "risk_assessment": "HIGH" if stock.get("conviction", 0) < 6 else "MEDIUM" if stock.get("conviction", 0) < 8 else "LOW",
+        "timestamp": datetime.now().isoformat()
+    }
+    return jsonify(analysis)
+
+@app.route('/api/portfolio', methods=['GET', 'POST'])
+def api_portfolio():
+    """Manage portfolio"""
+    global portfolio
+    if request.method == 'POST':
+        data = request.json
+        portfolio.append({
+            "symbol": data.get("symbol", "").upper(),
+            "shares": data.get("shares", 0),
+            "avg_price": data.get("avg_price", 0),
+            "added_at": datetime.now().isoformat()
+        })
+        return jsonify(portfolio[-1])
+    return jsonify(portfolio)
+
+@app.route('/api/news')
+def api_news():
+    """Get latest market news (mock data)"""
+    news = [
+        {"title": "Fed Signals Rate Pause", "source": "Reuters", "time": "2h ago", "sentiment": "bullish"},
+        {"title": "Tech Stocks Rally on AI Optimism", "source": "Bloomberg", "time": "3h ago", "sentiment": "bullish"},
+        {"title": "Oil Prices Slip on Supply Concerns", "source": "CNBC", "time": "4h ago", "sentiment": "bearish"},
+        {"title": "Canada Tech Sector Sees Growth", "source": "BNN", "time": "5h ago", "sentiment": "neutral"},
+        {"title": "Gold Hits New Highs", "source": "Kitco", "time": "6h ago", "sentiment": "bullish"},
+    ]
+    return jsonify(news)
+
+@app.route('/api/run_agent', methods=['POST'])
+def api_run_agent():
+    """Run an agent from the web interface"""
+    data = request.json
+    agent_name = data.get("agent", "")
+    
+    agents = {
+        "debugger": "debugger_agent.py",
+        "tester": "tester_agent.py",
+        "installer": "installer_agent.py",
+        "upgrade": "self_upgrade_agent.py"
+    }
+    
+    if agent_name not in agents:
+        return jsonify({"error": "Unknown agent"}), 400
+    
+    try:
+        result = subprocess.run(
+            [sys.executable, agents[agent_name], "--check"],
+            cwd=str(Path(__file__).parent),
+            capture_output=True,
+            text=True,
+            timeout=60
+        )
+        return jsonify({
+            "agent": agent_name,
+            "success": result.returncode == 0,
+            "output": result.stdout[:2000],
+            "error": result.stderr[:500] if result.stderr else None
+        })
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
 @app.route('/api/chart/<symbol>')
 def api_chart(symbol):
     tf_map = {'1D': '1d', '1W': '5d', '1M': '1mo', '3M': '3mo', '1Y': '1y'}
@@ -318,6 +408,14 @@ HTML = '''<!DOCTYPE html>
         .status-indicator { display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--text-muted); }
         .pulse { width: 8px; height: 8px; background: var(--green); border-radius: 50%; animation: pulse 2s infinite; }
         @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+        
+        /* Navigation Tabs */
+        .nav-tabs { display: flex; gap: 5px; margin-bottom: 20px; background: var(--bg-card); padding: 5px; border-radius: 10px; }
+        .nav-tab { padding: 12px 24px; border: none; background: transparent; color: var(--text-muted); cursor: pointer; font-size: 14px; font-weight: 600; border-radius: 8px; transition: all 0.2s; }
+        .nav-tab:hover { color: var(--text-main); background: var(--bg-hover); }
+        .nav-tab.active { background: var(--blue); color: white; }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
         .btn { padding: 8px 16px; border: none; border-radius: 6px; cursor: pointer; font-size: 13px; font-weight: 600; transition: all 0.2s; display: flex; align-items: center; gap: 6px; }
         .btn-primary { background: var(--blue); color: white; }
         .btn-secondary { background: var(--bg-hover); color: var(--text-main); border: 1px solid var(--border); }
@@ -402,6 +500,10 @@ HTML = '''<!DOCTYPE html>
         .alert-form select, .alert-form input { padding: 8px; background: var(--bg-hover); border: 1px solid var(--border); color: var(--text-main); border-radius: 6px; font-size: 13px; }
         .alert-form select { flex: 1; }
         .alert-form input { width: 80px; }
+        
+        /* Portfolio form */
+        .portfolio-form { display: flex; gap: 10px; margin-top: 15px; padding: 15px; background: var(--bg-hover); border-radius: 8px; }
+        .portfolio-form input { padding: 8px; background: var(--bg-dark); border: 1px solid var(--border); color: var(--text-main); border-radius: 6px; }
         .btn-success { background: var(--green); color: #000; }
         
         /* Sentiment */
@@ -433,6 +535,16 @@ HTML = '''<!DOCTYPE html>
                 <button class="btn btn-primary" onclick="showToast('Feature coming soon!')"><i class="fas fa-bell"></i> Alert</button>
             </div>
         </header>
+
+        <!-- Navigation Tabs -->
+        <div class="nav-tabs">
+            <button class="nav-tab active" data-tab="dashboard" onclick="switchTab('dashboard')">Dashboard</button>
+            <button class="nav-tab" data-tab="portfolio" onclick="switchTab('portfolio')">Portfolio</button>
+            <button class="nav-tab" data-tab="news" onclick="switchTab('news')">News</button>
+            <button class="nav-tab" data-tab="agents" onclick="switchTab('agents')">Agents</button>
+        </div>
+
+        <div class="tab-content" id="tab-dashboard">
         
         <div class="market-ticker" id="market-ticker"></div>
         
@@ -506,6 +618,101 @@ HTML = '''<!DOCTYPE html>
         
         function renderAll() {
             renderMarketTicker(); renderTopPick(); renderStockGrid(); renderWatchlist(); renderSentiment(); renderAlerts(); renderChart();
+        }
+
+        // Tab switching
+        function switchTab(tabName) {
+            document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+            document.querySelector(`[data-tab="${tabName}"]`).classList.add('active');
+            
+            if (tabName === 'portfolio') renderPortfolio();
+            else if (tabName === 'news') renderNews();
+            else if (tabName === 'agents') renderAgents();
+        }
+
+        // Portfolio tab
+        async function renderPortfolio() {
+            const tabContent = document.getElementById('tab-dashboard');
+            tabContent.innerHTML = `<div class="card"><div class="card-header"><div class="card-title">My Portfolio</div></div>
+                <div id="portfolio-list"></div>
+                <div class="portfolio-form">
+                    <input type="text" id="port-symbol" placeholder="Symbol" style="width:80px;padding:8px;">
+                    <input type="number" id="port-shares" placeholder="Shares" style="width:80px;padding:8px;">
+                    <input type="number" id="port-price" placeholder="Avg Price" style="width:100px;padding:8px;">
+                    <button class="btn btn-primary" onclick="addToPortfolio()">Add</button>
+                </div>
+            </div>`;
+            await loadPortfolio();
+        }
+
+        async function loadPortfolio() {
+            try {
+                const res = await fetch('/api/portfolio');
+                const portfolio = await res.json();
+                const totalValue = portfolio.reduce((sum, p) => sum + (p.shares * 150), 0); // Mock price
+                document.getElementById('portfolio-list').innerHTML = portfolio.length ? 
+                    portfolio.map(p => `<div class="stock-card" style="margin:10px 0;"><b>${p.symbol}</b>: ${p.shares} shares @ $${p.avg_price}</div>`).join('') :
+                    '<div style="padding:20px;color:var(--text-muted);">No holdings yet</div>';
+            } catch(e) { console.error(e); }
+        }
+
+        async function addToPortfolio() {
+            const symbol = document.getElementById('port-symbol').value.toUpperCase();
+            const shares = parseFloat(document.getElementById('port-shares').value);
+            const avgPrice = parseFloat(document.getElementById('port-price').value);
+            if (!symbol || !shares) return showToast('Please fill all fields');
+            await fetch('/api/portfolio', {
+                method: 'POST', headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({symbol, shares, avg_price: avgPrice})
+            });
+            showToast('Added to portfolio!');
+            loadPortfolio();
+        }
+
+        // News tab
+        async function renderNews() {
+            const tabContent = document.getElementById('tab-dashboard');
+            tabContent.innerHTML = `<div class="card"><div class="card-header"><div class="card-title">Market News</div></div>
+                <div id="news-list"></div></div>`;
+            try {
+                const res = await fetch('/api/news');
+                const news = await res.json();
+                document.getElementById('news-list').innerHTML = news.map(n => 
+                    `<div style="padding:15px;border-bottom:1px solid var(--border);">
+                        <div style="font-weight:600;margin-bottom:5px;">${n.title}</div>
+                        <div style="font-size:12px;color:var(--text-muted);">${n.source} • ${n.time} • <span class="${n.sentiment}">${n.sentiment}</span></div>
+                    </div>`).join('');
+            } catch(e) { document.getElementById('news-list').innerHTML = 'Failed to load news'; }
+        }
+
+        // Agents tab
+        function renderAgents() {
+            const tabContent = document.getElementById('tab-dashboard');
+            tabContent.innerHTML = `<div class="card"><div class="card-header"><div class="card-title">AI Agents</div></div>
+                <div style="padding:20px;">
+                    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:15px;">
+                        <div class="stock-card"><h3>Debugger</h3><p style="color:var(--text-muted);font-size:13px;">Syntax checking, error tracing</p><button class="btn btn-primary" style="margin-top:10px;" onclick="runAgent('debugger')">Run</button></div>
+                        <div class="stock-card"><h3>Tester</h3><p style="color:var(--text-muted);font-size:13px;">Test all agents</p><button class="btn btn-primary" style="margin-top:10px;" onclick="runAgent('tester')">Run</button></div>
+                        <div class="stock-card"><h3>Installer</h3><p style="color:var(--text-muted);font-size:13px;">Check dependencies</p><button class="btn btn-primary" style="margin-top:10px;" onclick="runAgent('installer')">Run</button></div>
+                        <div class="stock-card"><h3>Upgrade</h3><p style="color:var(--text-muted);font-size:13px;">Auto-upgrade agents</p><button class="btn btn-primary" style="margin-top:10px;" onclick="runAgent('upgrade')">Run</button></div>
+                    </div>
+                    <div id="agent-output" style="margin-top:20px;padding:15px;background:var(--bg-dark);border-radius:8px;font-family:monospace;font-size:12px;white-space:pre-wrap;display:none;"></div>
+                </div></div>`;
+        }
+
+        async function runAgent(agent) {
+            const output = document.getElementById('agent-output');
+            output.style.display = 'block';
+            output.textContent = 'Running ' + agent + '...';
+            try {
+                const res = await fetch('/api/run_agent', {
+                    method: 'POST', headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({agent})
+                });
+                const result = await res.json();
+                output.textContent = result.success ? result.output : (result.error || 'Failed');
+                showToast(agent + ' completed: ' + (result.success ? 'OK' : 'FAILED'));
+            } catch(e) { output.textContent = 'Error: ' + e.message; }
         }
         
         function renderMarketTicker() {
