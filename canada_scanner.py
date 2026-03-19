@@ -5,6 +5,7 @@ Find undervalued CAD stocks with news momentum
 Usage:
     python canada_scanner.py
     python canada_scanner.py --email
+    python canada_scanner.py --penny
 """
 
 import click
@@ -29,38 +30,76 @@ EMAIL_PASSWORD = os.environ.get("EMAIL_PASSWORD", "")
 EMAIL_TO = os.environ.get("EMAIL_TO", "")
 
 
-# Top Canadian picks based on current news/analysis
-CANADIAN_STOCKS = {
-    # Tech/Growth
-    "SHOP": "Shopify - E-commerce leader",
-    "CLS": "Celestica - Tech hardware",
-    "DOL": "Dollarama - Discount retail",
+# Top Canadian penny stocks - small cap, under $5, hidden gems
+# These have potential to SKYROCKET
+PENNY_STOCKS = {
+    # Mining - Gold (big upside if gold goes up)
+    "CXB": "Calibre Mining - Gold producer, merging with Equinox Gold",
+    "WML": "Wealth Minerals - Lithium exploration, battery metals",
+    "NANO": "Nano One Materials - Battery tech, price target $5+",
+    "DRT": "DIRTT Environmental - Construction tech, turnaround play",
     
-    # Financials
-    "RY": "Royal Bank of Canada",
-    "TD": "TD Bank",
-    "BMO": "Bank of Montreal",
+    # Energy/Oil -受益于油价
+    "NSE": "New Stratus Energy - Oil & gas, undervalued",
+    "HE": "Hemisphere Energy - Oil producer, high dividend",
+    "POET": "POET Technologies - Semiconductor, AI chip play",
     
-    # Energy
-    "CNQ": "Canadian Natural Resources",
-    "SU": "Suncor Energy",
-    "ENB": "Enbridge",
+    # Tech - High growth potential
+    "ZOMD": "Zoomd Technologies - Ad tech, expanding globally",
+    "TRUL": "Trulieve Cannabis - Cannabis, US expansion",
     
-    # Materials/Mining
-    "AEM": "Agnico Eagle Mines - Gold",
-    "NVA": "Nuinsco Resources - Mining",
+    # Healthcare/Science
+    "DNTL": "dentalcorp - Dental services, consolidation play",
+    "LMN": "Lumine Group - Software, recurring revenue",
     
-    # Industrial
-    "MAG": "MAG Silver - Mining",
-    "SJR": "SJR Industries",
+    # More small cap
+    "THNC": "Thinkific - EdTech, online courses",
+    "MDA": "MDA Space - Space tech, satellite data",
+    "GSY": "goeasy - Consumer lending, fast growth",
     
-    # Airlines/Retail
-    "AC": "Air Canada",
-    "L": "Loblaw Companies",
-    
-    # Telecom
-    "T": "Telus",
-    "BCE": "BCE",
+    # Additional penny picks
+    "BB": "BlackBerry - Tech turnaround, AI software",
+    "PLTH": "Planet 13 - Cannabis, US MSO",
+    "HIGH": "High Arctic - Energy services",
+}
+
+
+# WHY THESE WILL SKYROCKET - Quick analysis
+STOCK_THESIS = {
+    "NANO": "✅ Battery tech for EVs | Price target $5.25 | US production tax credits | Global LFP demand booming",
+    "CXB": "✅ Gold producer | Merging with Equinox ($2.5B deal) | Production up 16% | Safe haven play",
+    "WML": "✅ Lithium exploration | Battery metals demand | EV revolution | Undervalued assets",
+    "HE": "✅ Oil producer | High dividend | Oil prices rising | Low valuation",
+    "POET": "✅ Semiconductor | AI chips | Growth sector | Penny stock upside",
+    "ZOMD": "✅ Ad tech | Global expansion | Recurring revenue | Under the radar",
+    "BB": "✅ Tech turnaround | AI software pivot | Cybersecurity | Brand recognition",
+    "GSY": "✅ Consumer lending | Fast growth | High margins | Canadian fintech leader",
+    "MDA": "✅ Space tech | Satellite data | Government contracts | Defense sector",
+    "DNTL": "✅ Dental consolidation | Recurring revenue | Aging population | Canadian market",
+}
+
+
+# Growth stocks - slightly higher price but growth potential
+GROWTH_STOCKS = {
+    "SHOP": "Shopify - E-commerce leader, global expansion",
+    "CLS": "Celestica - Tech hardware, AI servers",
+    "DOL": "Dollarama - Discount retail, rock solid",
+    "L": "Loblaw Companies - Retail, dividend king",
+    "AC": "Air Canada - Airlines recovery, travel boom",
+}
+
+
+# Value stocks - established companies
+VALUE_STOCKS = {
+    "RY": "Royal Bank of Canada - Largest bank",
+    "TD": "TD Bank - Top bank, US growth",
+    "BMO": "Bank of Montreal - Diversified",
+    "CNQ": "Canadian Natural Resources - Oil giant",
+    "SU": "Suncor Energy - Oil leader",
+    "ENB": "Enbridge - Pipeline monopoly",
+    "AEM": "Agnico Eagle Mines - Gold safe haven",
+    "T": "Telus - Telecom, 5G expansion",
+    "BCE": "BCE - Telecom, dividend play",
 }
 
 
@@ -155,7 +194,8 @@ def send_email(subject: str, content: str):
 @click.command()
 @click.option("--email", "-e", is_flag=True, help="Send via email")
 @click.option("--model", "-m", default=None, help="Ollama model")
-def main(email: bool, model: str):
+@click.option("--type", "-t", default="all", help="Type: penny, growth, value, all")
+def main(email: bool, model: str, type: str):
     """Canadian Stock Scanner - Find undervalued CAD stocks"""
     
     model = model or DEFAULT_MODEL
@@ -165,52 +205,96 @@ def main(email: bool, model: str):
     
     # Get news
     click.echo("📰 Fetching Canadian market news...")
-    news_queries = ["Canadian stock market", "TSX outlook", "oil prices Canada"]
+    news_queries = ["Canadian stock market", "TSX outlook", "oil prices Canada", "penny stocks Canada"]
     news = {}
     for q in news_queries:
         news[q] = search_news(q)
     
+    # Select stock list
+    all_stocks = {}
+    if type in ["penny", "all"]:
+        all_stocks.update(PENNY_STOCKS)
+    if type in ["growth", "all"]:
+        all_stocks.update(GROWTH_STOCKS)
+    if type in ["value", "all"]:
+        all_stocks.update(VALUE_STOCKS)
+    
     # Get stock data
     click.echo("📊 Analyzing Canadian stocks...")
     stocks = []
-    for symbol in CANADIAN_STOCKS:
+    for symbol in all_stocks:
         info = get_stock_info(symbol)
         if 'error' not in info:
             # Calculate value metrics
             if info.get('price') and info.get('52w_low') and info.get('52w_high'):
                 range_pct = (info['price'] - info['52w_low']) / (info['52w_high'] - info['52w_low'])
                 info['value_score'] = 100 - (range_pct * 100)  # Lower in range = more value
+            info['category'] = 'penny' if symbol in PENNY_STOCKS else 'growth' if symbol in GROWTH_STOCKS else 'value'
             stocks.append(info)
     
     # Sort by value
     stocks.sort(key=lambda x: x.get('value_score', 0), reverse=True)
     
-    # Show top picks
-    click.echo(f"\n📈 TOP CANADIAN PICKS:")
+    # Show penny stocks (hidden gems)
+    click.echo(f"\n💎 HIDDEN GEMS (PENNY STOCKS - High Risk/High Reward):")
     click.echo("-"*50)
+    penny = [s for s in stocks if s.get('category') == 'penny']
+    for s in penny[:8]:
+        emoji = "🚀" if s.get('value_score', 0) > 70 else "📈" if s.get('value_score', 0) > 50 else "⚠️"
+        click.echo(f"{emoji} {s['symbol']}: ${s.get('price', 0):.2f} | Value: {s.get('value_score', 0):.0f}%")
+        if s['symbol'] in STOCK_THESIS:
+            click.echo(f"   💡 {STOCK_THESIS[s['symbol']]}")
     
-    for s in stocks[:10]:
+    # Show growth stocks
+    click.echo(f"\n📈 GROWTH STOCKS:")
+    click.echo("-"*50)
+    growth = [s for s in stocks if s.get('category') == 'growth']
+    for s in growth:
         emoji = "🟢" if s.get('value_score', 0) > 70 else "🟡" if s.get('value_score', 0) > 50 else "🔴"
-        click.echo(f"{emoji} {s['symbol']}: ${s.get('price', 0):.2f} | P/E: {s.get('pe_ratio', 0):.1f} | Value: {s.get('value_score', 0):.0f}%")
+        click.echo(f"{emoji} {s['symbol']}: ${s.get('price', 0):.2f} | P/E: {s.get('pe_ratio', 0):.1f}")
+    
+    # Show value stocks
+    click.echo(f"\n💼 VALUE STOCKS (Safer):")
+    click.echo("-"*50)
+    value = [s for s in stocks if s.get('category') == 'value']
+    for s in value:
+        emoji = "🟢" if s.get('value_score', 0) > 70 else "🟡" if s.get('value_score', 0) > 50 else "🔴"
+        click.echo(f"{emoji} {s['symbol']}: ${s.get('price', 0):.2f} | P/E: {s.get('pe_ratio', 0):.1f}")
     
     # AI Analysis
     click.echo(f"\n🤖 AI ANALYSIS...")
     ai_analysis = analyze_with_ai(stocks, news, model)
-    click.echo(ai_analysis[:1000])
+    click.echo(ai_analysis[:1500])
     
     # Email
     if email:
+        thesis_text = ""
+        for s in penny[:5]:
+            if s['symbol'] in STOCK_THESIS:
+                thesis_text += f"\n{s['symbol']}: {STOCK_THESIS[s['symbol']]}"
+        
         content = f"""
-🇨🇦 CANADIAN STOCK SCANALYSIS
+🇨🇦 CANADIAN STOCK SCANNER - HIDDEN GEMS
 Generated: {datetime.now().strftime('%Y-%m-%d %H:%M')}
 
-TOP PICKS:
-{chr(10).join([f"{s['symbol']}: ${s.get('price', 0):.2f}" for s in stocks[:5]])}
+💎 TOP PENNY STOCKS (High Risk, High Reward):
+{chr(10).join([f"{s['symbol']}: ${s.get('price', 0):.2f} - Value: {s.get('value_score', 0):.0f}%" for s in penny[:5]])}
 
-AI ANALYSIS:
+📈 GROWTH PICKS:
+{chr(10).join([f"{s['symbol']}: ${s.get('price', 0):.2f}" for s in growth[:3]])}
+
+💼 VALUE PICKS:
+{chr(10).join([f"{s['symbol']}: ${s.get('price', 0):.2f}" for s in value[:3]])}
+
+💡 WHY THESE WILL SKYROCKET:
+{thesis_text}
+
+🤖 AI ANALYSIS:
 {ai_analysis}
+
+⚠️ Penny stocks are HIGH RISK - only invest what you can afford to lose!
 """
-        if send_email("🇨🇦 Canadian Stock Picks", content):
+        if send_email("🇨🇦 Canadian Hidden Gem Stocks", content):
             click.echo(f"\n✅ Email sent!")
 
 
