@@ -86,9 +86,9 @@ STOCK_ANALYSIS = {
         "conviction": "7/10"
     },
 
-    "CXB": {
-        "name": "Calibre Mining Corp",
-        "sector": "Gold Mining",
+    "WPM": {
+        "name": "Wheaton Precious Metals",
+        "sector": "Gold & Silver Streaming",
         "current_price": 0,
         "price_target": "$4.00",
         "timeframe": "6-12 months",
@@ -280,7 +280,7 @@ STOCK_ANALYSIS = {
 
 def get_current_prices():
     """Fetch prices"""
-    tickers = {"NANO": "NANO.TO", "CXB": "CXB.TO", "SHOP": "SHOP.TO",
+    tickers = {"NANO": "NANO.TO", "WPM": "WPM.TO", "SHOP": "SHOP.TO",
                "GSY": "GSY.TO", "BB": "BB.TO", "DOL": "DOL.TO"}
     prices = {}
     for symbol, tsx in tickers.items():

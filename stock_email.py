@@ -67,9 +67,9 @@ The key insight: Asian producers currently dominate LFP, but the Inflation Reduc
         ]
     },
 
-    "CXB": {
-        "name": "Calibre Mining Corp",
-        "sector": "Gold Mining",
+    "WPM": {
+        "name": "Wheaton Precious Metals",
+        "sector": "Gold & Silver Streaming",
         "current_price": 0,
         "price_target": "$4.00",
         "timeframe": "6-12 months",
@@ -246,7 +246,7 @@ def get_current_prices():
     """Fetch current prices for all stocks"""
     tickers = {
         "NANO": "NANO.TO",
-        "CXB": "CXB.TO",
+        "WPM": "WPM.TO",
         "SHOP": "SHOP.TO",
         "BB": "BB.TO",
         "GSY": "GSY.TO",

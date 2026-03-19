@@ -34,7 +34,7 @@ EMAIL_TO = os.environ.get("EMAIL_TO", "peterm2543@gmail.com")
 # These have potential to SKYROCKET
 PENNY_STOCKS = {
     # Mining - Gold (big upside if gold goes up)
-    "CXB": "Calibre Mining - Gold producer, merging with Equinox Gold",
+    "WPM": "Wheaton Precious Metals - Precious metals streaming",
     "WML": "Wealth Minerals - Lithium exploration, battery metals",
     "NANO": "Nano One Materials - Battery tech, price target $5+",
     "DRT": "DIRTT Environmental - Construction tech, turnaround play",
@@ -72,11 +72,11 @@ STOCK_THESIS = {
         "why": "Battery technology for EVs. One-Pot process makes LFP batteries cheaper. US government tax credits for domestic battery production. Global LFP demand expected to grow 5X by 2035. Selected for ALTA (America's first lithium/battery supply chain accelerator).",
         "catalyst": "Battery factories being built in US/Canada = more contracts"
     },
-    "CXB": {
-        "name": "Calibre Mining Corp",
-        "price_target": "$4.20",
-        "why": "Gold producer merging with Equinox Gold in $2.5 BILLION deal (Q2 2025). Production up 16% in Q1 2025. Valentine Gold Mine nearing completion. Safe haven play as gold prices surge.",
-        "catalyst": "Gold hitting all-time highs, merger creates top 5 gold producer"
+    "WPM": {
+        "name": "Wheaton Precious Metals",
+        "price_target": "$85.00",
+        "why": "Precious metals streaming company. Low costs, high margins. Gold and silver prices rising. Streaming model = no mining risk, just cash flow.",
+        "catalyst": "Gold/silver at highs, safe haven play"
     },
     "WML": {
         "name": "Wealth Minerals Ltd",
