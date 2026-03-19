@@ -64,18 +64,86 @@ PENNY_STOCKS = {
 }
 
 
-# WHY THESE WILL SKYROCKET - Quick analysis
+# WHY THESE WILL SKYROCKET - Detailed analysis
 STOCK_THESIS = {
-    "NANO": "✅ Battery tech for EVs | Price target $5.25 | US production tax credits | Global LFP demand booming",
-    "CXB": "✅ Gold producer | Merging with Equinox ($2.5B deal) | Production up 16% | Safe haven play",
-    "WML": "✅ Lithium exploration | Battery metals demand | EV revolution | Undervalued assets",
-    "HE": "✅ Oil producer | High dividend | Oil prices rising | Low valuation",
-    "POET": "✅ Semiconductor | AI chips | Growth sector | Penny stock upside",
-    "ZOMD": "✅ Ad tech | Global expansion | Recurring revenue | Under the radar",
-    "BB": "✅ Tech turnaround | AI software pivot | Cybersecurity | Brand recognition",
-    "GSY": "✅ Consumer lending | Fast growth | High margins | Canadian fintech leader",
-    "MDA": "✅ Space tech | Satellite data | Government contracts | Defense sector",
-    "DNTL": "✅ Dental consolidation | Recurring revenue | Aging population | Canadian market",
+    "NANO": {
+        "name": "Nano One Materials Corp",
+        "price_target": "$5.25",
+        "why": "Battery technology for EVs. One-Pot process makes LFP batteries cheaper. US government tax credits for domestic battery production. Global LFP demand expected to grow 5X by 2035. Selected for ALTA (America's first lithium/battery supply chain accelerator).",
+        "catalyst": "Battery factories being built in US/Canada = more contracts"
+    },
+    "CXB": {
+        "name": "Calibre Mining Corp",
+        "price_target": "$4.20",
+        "why": "Gold producer merging with Equinox Gold in $2.5 BILLION deal (Q2 2025). Production up 16% in Q1 2025. Valentine Gold Mine nearing completion. Safe haven play as gold prices surge.",
+        "catalyst": "Gold hitting all-time highs, merger creates top 5 gold producer"
+    },
+    "WML": {
+        "name": "Wealth Minerals Ltd",
+        "price_target": "$1.00+",
+        "why": "Lithium exploration company with assets in Chile (the Lithium Triangle). Battery metals demand exploding. EV adoption accelerating globally. Currently trading below asset value.",
+        "catalyst": "Lithium prices recovering, any exploration success = huge upside"
+    },
+    "HE": {
+        "name": "Hemisphere Energy Corp",
+        "price_target": "$3.00",
+        "why": "Oil producer in Saskatchewan. High dividend yield (8%+). Very low decline rates on wells. Oil prices rising due to supply issues. Extremely undervalued.",
+        "catalyst": "Oil prices going up, dividends provide downside protection"
+    },
+    "POET": {
+        "name": "POET Technologies Inc",
+        "price_target": "$2.00+",
+        "why": "Semiconductor company making optical chips for AI data centers. Chiplet technology is game-changing for AI computing. Under-the-radar play on AI infrastructure.",
+        "catalyst": "AI boom, data centers need optical chips for speed"
+    },
+    "BB": {
+        "name": "BlackBerry Limited",
+        "price_target": "$8.00",
+        "why": "Tech turnaround story. Pivoted from phones to enterprise software. Cybersecurity (Cylance) and IoT growing. QNX embedded software in millions of cars. Undervalued vs peers.",
+        "catalyst": "Enterprise security demand, connected cars, any AI news"
+    },
+    "GSY": {
+        "name": "goeasy Ltd",
+        "price_target": "$200+",
+        "why": "Canadian fintech leader in consumer lending. 20%+ annual growth. High margins (60%+). Expanding into US market. Trading at reasonable valuation for growth.",
+        "catalyst": "US expansion, continued growth, credit quality improving"
+    },
+    "MDA": {
+        "name": "MDA Space Ltd",
+        "price_target": "$40+",
+        "why": "Space technology company (formerly Maxar). Satellite imaging for defense/government. Contracts with NASA, Space Force, Canadian government. Space economy booming.",
+        "catalyst": "Defense spending, satellite constellation contracts"
+    },
+    "ZOMD": {
+        "name": "Zoomd Technologies Ltd",
+        "price_target": "$3.00",
+        "why": "Mobile ad tech platform. Expanding in Asia/India. Very low market cap. Recurring revenue model. App discovery and user acquisition.",
+        "catalyst": "Mobile gaming growth, any partnership announcements"
+    },
+    "DNTL": {
+        "name": "dentalcorp Holdings Ltd",
+        "price_target": "$20+",
+        "why": "Dental services consolidation play. Largest dental support organization in Canada. Recurring revenue from dental practices. Aging population = more dental needs.",
+        "catalyst": "More acquisitions, same-store growth"
+    },
+    "DOL": {
+        "name": "Dollarama Inc",
+        "price_target": "$250+",
+        "why": "Discount retailer. Canadians spending less = more dollar store shoppers. Expanding to 2,000+ stores. Rock-solid business model. Inflation hedge.",
+        "catalyst": "Economic uncertainty = more value shoppers"
+    },
+    "SHOP": {
+        "name": "Shopify Inc",
+        "price_target": "$300+",
+        "why": "E-commerce platform for small businesses. AI tools for merchants. GMV growing. Take rate improving. Global expansion. Best-in-class management.",
+        "catalyst": "More small businesses going online, AI features driving adoption"
+    },
+    "AC": {
+        "name": "Air Canada",
+        "price_target": "$25+",
+        "why": "Canada's flagship airline. Travel demand remains strong. Capacity discipline. Loyalty program valuable. Ultra low-cost carrier helping margins.",
+        "catalyst": "Summer travel season, any route expansion"
+    },
 }
 
 
@@ -235,15 +303,29 @@ def main(email: bool, model: str, type: str):
     # Sort by value
     stocks.sort(key=lambda x: x.get('value_score', 0), reverse=True)
     
+    # Determine BEST PICK
+    penny = [s for s in stocks if s.get('category') == 'penny']
+    best_pick = None
+    best_stock = None
+    if penny and penny[0].get('symbol') in STOCK_THESIS:
+        best_stock = penny[0]
+        best_pick = STOCK_THESIS[penny[0]['symbol']]
+    
+    # Show BEST PICK prominently
+    if best_pick:
+        click.echo(f"\n{'='*60}")
+        click.echo(f"⭐⭐⭐ BEST PICK: {best_stock['symbol']} - {best_pick['name']} ⭐⭐⭐")
+        click.echo(f"{'='*60}")
+        click.echo(f"Current Price: ${best_stock.get('price', 0):.2f}")
+        click.echo(f"Price Target: {best_pick['price_target']}")
+        click.echo(f"\n📊 WHY THIS STOCK WILL SKYROCKET:")
+        click.echo(f"{best_pick['why']}")
+        click.echo(f"\n🔥 CATALYST (What will trigger the jump):")
+        click.echo(f"{best_pick['catalyst']}")
+        click.echo(f"{'='*60}")
+    
     # Show penny stocks (hidden gems)
     click.echo(f"\n💎 HIDDEN GEMS (PENNY STOCKS - High Risk/High Reward):")
-    click.echo("-"*50)
-    penny = [s for s in stocks if s.get('category') == 'penny']
-    for s in penny[:8]:
-        emoji = "🚀" if s.get('value_score', 0) > 70 else "📈" if s.get('value_score', 0) > 50 else "⚠️"
-        click.echo(f"{emoji} {s['symbol']}: ${s.get('price', 0):.2f} | Value: {s.get('value_score', 0):.0f}%")
-        if s['symbol'] in STOCK_THESIS:
-            click.echo(f"   💡 {STOCK_THESIS[s['symbol']]}")
     
     # Show growth stocks
     click.echo(f"\n📈 GROWTH STOCKS:")
@@ -268,10 +350,29 @@ def main(email: bool, model: str, type: str):
     
     # Email
     if email:
+        # Build thesis text
         thesis_text = ""
+        best_text = ""
         for s in penny[:5]:
             if s['symbol'] in STOCK_THESIS:
-                thesis_text += f"\n{s['symbol']}: {STOCK_THESIS[s['symbol']]}"
+                t = STOCK_THESIS[s['symbol']]
+                thesis_text += f"\n{s['symbol']} - {t['name']}\n"
+                thesis_text += f"   Why: {t['why']}\n"
+                thesis_text += f"   Target: {t['price_target']} | Catalyst: {t['catalyst']}\n"
+        
+        # Best pick for email
+        if best_pick:
+            best_text = f"""
+⭐⭐⭐ BEST PICK: {penny[0]['symbol']} - {best_pick['name']} ⭐⭐⭐
+Current Price: ${penny[0].get('price', 0):.2f}
+Price Target: {best_pick['price_target']}
+
+WHY THIS STOCK WILL SKYROCKET:
+{best_pick['why']}
+
+CATALYST (What will trigger the jump):
+{best_pick['catalyst']}
+"""
         
         content = f"""
 🇨🇦 CANADIAN STOCK SCANNER - HIDDEN GEMS
@@ -286,7 +387,9 @@ Generated: {datetime.now().strftime('%Y-%m-%d %H:%M')}
 💼 VALUE PICKS:
 {chr(10).join([f"{s['symbol']}: ${s.get('price', 0):.2f}" for s in value[:3]])}
 
-💡 WHY THESE WILL SKYROCKET:
+{best_text}
+
+💡 DETAILED ANALYSIS:
 {thesis_text}
 
 🤖 AI ANALYSIS:
