@@ -42,6 +42,8 @@ def ask_llm(prompt):
             },
             timeout=60
         )
+        print(f"Status: {r.status_code}")
+        print(f"Response: {r.text[:200]}")
         data = r.json()
         return data.get("response", "") or data.get("message", {}).get("content", "")
     except Exception as e:
