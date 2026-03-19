@@ -4,7 +4,7 @@ import re
 import time
 import requests
 import subprocess
-from duckduckgo_search import DDGS
+from ddgs import DDGS
 
 # --------------------------------------------------
 # CONFIG
