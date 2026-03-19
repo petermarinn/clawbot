@@ -17,6 +17,9 @@ Usage:
 """
 
 import os
+from pathlib import Path
+import sys
+import subprocess
 import yfinance as yf
 import json
 import logging
