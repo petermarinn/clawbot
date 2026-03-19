@@ -458,7 +458,7 @@ def generate_email_content(prices: dict) -> str:
     
     # Build email
     email = f"""
-Subject: 🚀 High-Conviction Stock Picks (Data + News + Sentiment + Market Intelligence)
+Subject:  High-Conviction Stock Picks (Data + News + Sentiment + Market Intelligence)
 
 
 ---
@@ -472,7 +472,7 @@ After analyzing market data, real-world developments, and investor sentiment acr
 ---
 
 
-⭐⭐⭐ BEST PICK: {best_pick[0]} - {best_pick[1]['name']} ⭐⭐⭐
+ BEST PICK: {best_pick[0]} - {best_pick[1]['name']} 
 
 
 Current Price: ${best_pick[1]['current_price']:.2f} (CAD)
@@ -485,13 +485,13 @@ Sector: {best_pick[1]['sector']}
 ---
 
 
-📊 FUNDAMENTAL THESIS:
+ FUNDAMENTAL THESIS:
 
 
 {best_pick[1]['fundamental']}
 
 
-📰 NEWS & EVIDENCE:
+ NEWS & EVIDENCE:
 
 
 """
@@ -501,7 +501,7 @@ Sector: {best_pick[1]['sector']}
     email += f"""
 
 
-💬 MARKET SENTIMENT:
+ MARKET SENTIMENT:
 
 
 Reddit:
@@ -515,7 +515,7 @@ Stocktwits / Forums: {sent['stocktwits_summary']}
 Overall sentiment: {sent['overall']}
 
 
-📊 POSITIONING & FLOW:
+ POSITIONING & FLOW:
 
 
 - Institutional: {best_pick[1]['positioning']['institutional']}
@@ -524,7 +524,7 @@ Overall sentiment: {sent['overall']}
 - Options activity: {best_pick[1]['positioning']['options']}
 
 
-🔥 KEY CATALYSTS:
+ KEY CATALYSTS:
 
 
 """
@@ -535,7 +535,7 @@ Overall sentiment: {sent['overall']}
     email += f"""
 
 
-⏳ TIMELINE BREAKDOWN:
+ TIMELINE BREAKDOWN:
 
 
 0–3 months: {tl['0_3_months']}
@@ -543,13 +543,13 @@ Overall sentiment: {sent['overall']}
 6–12 months: {tl['6_12_months']}
 
 
-💰 VALUATION LOGIC:
+ VALUATION LOGIC:
 
 
 {best_pick[1]['upside']} upside from ${best_pick[1]['current_price']:.2f} to {best_pick[1]['price_target']}. Target based on {"analyst consensus" if best_pick[0] == "NANO" else "comparable company multiples and growth rates"}.
 
 
-📉 TECHNICAL CONTEXT:
+ TECHNICAL CONTEXT:
 
 
 - Trend: {"Uptrend" if float(best_pick[1]['current_price']) > float(best_pick[1]['support']) else "Consolidation"}
@@ -558,7 +558,7 @@ Overall sentiment: {sent['overall']}
 - Volume: Moderate accumulation
 
 
-⚠️ RISKS:
+ RISKS:
 
 
 """
@@ -568,26 +568,16 @@ Overall sentiment: {sent['overall']}
     email += f"""
 
 
-🚨 INVALIDATION POINT:
+ INVALIDATION POINT:
 
 
 This thesis is wrong if:
 - {best_pick[1]['invalidation']}
 
 
-⭐ CONVICTION SCORE: {best_pick[1]['conviction']}
-    
-    # Additional picks
-    email += f"""
-
-
----
-
-
-📈 ADDITIONAL HIGH-CONVICTION PICKS:
-
-
+ CONVICTION SCORE: {best_pick[1]['conviction']}
 """
+    
     
     for symbol, data in sorted_stocks[1:4]:
         email += f"""
@@ -603,13 +593,13 @@ Upside Potential: {data['upside']}
 Sector: {data['sector']}
 
 
-📊 FUNDAMENTAL THESIS:
+ FUNDAMENTAL THESIS:
 
 
 {data['fundamental']}
 
 
-📰 NEWS & EVIDENCE:
+ NEWS & EVIDENCE:
 
 
 """
@@ -619,7 +609,7 @@ Sector: {data['sector']}
         email += f"""
 
 
-💬 MARKET SENTIMENT:
+ MARKET SENTIMENT:
 
 
 """
@@ -633,7 +623,7 @@ Stocktwits: {sent['stocktwits']}
 Trend: {sent['trend']}
 
 
-🔥 KEY CATALYSTS:
+ KEY CATALYSTS:
 
 
 """
@@ -643,13 +633,13 @@ Trend: {sent['trend']}
         email += f"""
 
 
-💰 VALUATION LOGIC:
+ VALUATION LOGIC:
 
 
 {data['upside']} upside from ${data['current_price']:.2f} to {data['price_target']}.
 
 
-⚠️ RISKS:
+ RISKS:
 
 
 """
@@ -663,7 +653,7 @@ Trend: {sent['trend']}
 ---
 
 
-📊 MARKET INTELLIGENCE SUMMARY:
+ MARKET INTELLIGENCE SUMMARY:
 
 
 • Institutional Money Flow: Bonds yields stabilizing, tech/growth rotating. Commodity funds seeing inflows (gold, lithium).
@@ -776,11 +766,11 @@ def send_email(subject: str, content: str):
 def main(email: bool):
     """Professional Stock Analysis with Multi-Source Intelligence"""
     
-    click.echo(f"\n📊 GENERATING HIGH-CONVICTION STOCK ANALYSIS...")
+    click.echo(f"\n GENERATING HIGH-CONVICTION STOCK ANALYSIS...")
     click.echo(f"{'='*50}\n")
     
     # Get prices
-    click.echo("💰 Fetching current prices...")
+    click.echo(" Fetching current prices...")
     prices = get_current_prices()
     
     for symbol, price in prices.items():
@@ -800,7 +790,7 @@ def main(email: bool):
     # Send email
     if email:
         click.echo(f"\n📧 Sending email...")
-        if send_email("🚀 High-Conviction Stock Picks (Data + News + Sentiment + Intel)", content):
+        if send_email(" High-Conviction Stock Picks (Data + News + Sentiment + Intel)", content):
             click.echo(f"✅ Email sent successfully!")
         else:
             click.echo(f"❌ Failed to send email")
