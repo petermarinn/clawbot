@@ -11,7 +11,7 @@ from duckduckgo_search import DDGS
 # --------------------------------------------------
 
 API_URL = "http://localhost:11434/api/generate"
-MODEL = "qwen2.5-coder:3b"
+MODEL = "qwen2.5:0.5b"  # Using smallest/fastest model
 
 BASE_DIR = os.path.expanduser("~/clawbot")
 WORKSPACE = os.path.join(BASE_DIR, "workspace")
