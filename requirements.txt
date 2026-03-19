@@ -1,0 +1,17 @@
+# Requirements for ClawBot AI Automation System
+
+# Core
+requests>=2.31.0
+
+# AI Web Scraping (local, no API keys)
+scrapegraphai>=1.0.0
+
+# Alternative: Web scraping
+beautifulsoup4>=4.12.0
+lxml>=4.9.0
+
+# Web search (local)
+ddgs>=9.0.0
+
+# CLI
+click>=8.1.0
