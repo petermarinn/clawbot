@@ -333,6 +333,36 @@ def api_news():
     ]
     return jsonify(news)
 
+# ===================== MEMORY API =====================
+MEMORY_FILE = Path(__file__).parent / "memory.json"
+
+@app.route('/api/memory')
+def api_memory():
+    """Get system memory/state"""
+    if MEMORY_FILE.exists():
+        with open(MEMORY_FILE) as f:
+            return jsonify(json.load(f))
+    return jsonify({"error": "No memory found"})
+
+@app.route('/api/memory', methods=['POST'])
+def api_update_memory():
+    """Update system memory"""
+    data = request.json
+    if MEMORY_FILE.exists():
+        with open(MEMORY_FILE) as f:
+            memory = json.load(f)
+    else:
+        memory = {}
+    
+    memory.update(data)
+    
+    with open(MEMORY_FILE, "w") as f:
+        json.dump(memory, f, indent=2)
+    
+    return jsonify({"success": True, "memory": memory})
+
+# ===================== RUN AGENT API =====================
+
 @app.route('/api/run_agent', methods=['POST'])
 def api_run_agent():
     """Run an agent from the web interface"""

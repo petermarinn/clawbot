@@ -1,294 +1,276 @@
-from datetime import datetime
-from pathlib import Path
-from threading import Thread, Event
-import json
-import logging
-import os
-import subprocess
-import sys
-import time
 #!/usr/bin/env python3
 """
-commander_agent.py - Autonomous commander that runs master agent automatically
-Schedules and executes tasks without manual intervention
+COMMANDER AGENT - Autonomous Decision Maker
+==========================================
+Responsibilities:
+- Analyze system state
+- Decide what tasks should be executed
+- Assign tasks to master_agent
+- Coordinate all other agents
+
+Commander MUST NOT:
+- Write code
+- Modify files directly
+- Execute tasks
+
+Commander ONLY outputs structured commands.
 """
 
-
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-)
-logger = logging.getLogger(__name__)
+import json
+import os
+from pathlib import Path
+from datetime import datetime
+from typing import Dict, List, Optional
 
 
 class CommanderAgent:
-    """Autonomous agent that commands other agents automatically"""
+    """
+    The Commander decides what needs to be done and outputs structured commands.
+    It does NOT execute tasks - it only decides and commands.
+    """
     
     def __init__(self, project_dir="/workspace/project/clawbot"):
         self.project_dir = Path(project_dir)
-        self.running = False
-        self.stop_event = Event()
-        self.last_results = {}
-        self.schedule = {
-            "pre_pull": {"interval": 300, "last_run": 0, "enabled": True},      # 5 min
-            "analyze": {"interval": 1800, "last_run": 0, "enabled": True},      # 30 min
-            "upgrade": {"interval": 3600, "last_run": 0, "enabled": True},        # 1 hour
-            "test": {"interval": 600, "last_run": 0, "enabled": True},         # 10 min
-            "deploy_check": {"interval": 1800, "last_run": 0, "enabled": True},  # 30 min
-        }
+        self.memory_file = self.project_dir / "memory.json"
+        self.commands_file = self.project_dir / "commander_commands.json"
+        self.load_memory()
         
-    def log(self, message, level="info"):
-        """Log with timestamp"""
-        timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-        msg = f"[{timestamp}] {message}"
-        if level == "info":
-            logger.info(msg)
-        elif level == "error":
-            logger.error(msg)
-        elif level == "warning":
-            logger.warning(msg)
-        print(msg)
-        
-    def run_command(self, command, timeout=120):
-        """Run a shell command and return output"""
-        self.log(f"Executing: {command}")
-        try:
-            result = subprocess.run(
-                command,
-                shell=True,
-                cwd=str(self.project_dir),
-                capture_output=True,
-                text=True,
-                timeout=timeout
-            )
-            return {
-                "success": result.returncode == 0,
-                "output": result.stdout[:3000],
-                "error": result.stderr[:500] if result.stderr else None,
-                "returncode": result.returncode
+    def load_memory(self):
+        """Load shared memory"""
+        if self.memory_file.exists():
+            with open(self.memory_file) as f:
+                self.memory = json.load(f)
+        else:
+            self.memory = {
+                "system_state": "initializing",
+                "features": [],
+                "broken": [],
+                "last_updates": {},
+                "completed_tasks": [],
+                "pending_tasks": []
             }
-        except subprocess.TimeoutExpired:
-            return {"success": False, "error": "Command timed out", "timeout": True}
-        except Exception as e:
-            return {"success": False, "error": str(e)}
-    
-    def run_master(self, args):
-        """Run master_agent.py with arguments"""
-        cmd = f"{sys.executable} master_agent.py {args}"
-        return self.run_command(cmd)
-    
-    def execute_pre_pull(self):
-        """Run pre-pull validation"""
-        self.log("🎯 Running PRE-PULL validation...")
-        result = self.run_master("--pre-pull")
-        self.last_results["pre_pull"] = result
-        if result.get("success"):
-            self.log("✅ Pre-pull check PASSED")
-        else:
-            self.log(f"❌ Pre-pull check FAILED: {result.get('error', 'Unknown')}", "error")
-        return result
-    
-    def execute_analyze(self):
-        """Analyze all agents"""
-        self.log("🔍 Running agent analysis...")
-        result = self.run_master("--analyze")
-        self.last_results["analyze"] = result
-        if result.get("success"):
-            self.log("✅ Analysis complete")
-        else:
-            self.log(f"❌ Analysis failed: {result.get('error')}", "error")
-        return result
-    
-    def execute_upgrade(self):
-        """Auto-upgrade agents"""
-        self.log("🚀 Running auto-upgrade...")
-        result = self.run_master("--upgrade")
-        self.last_results["upgrade"] = result
-        if result.get("success"):
-            self.log("✅ Upgrade complete")
-        else:
-            self.log(f"❌ Upgrade failed: {result.get('error')}", "error")
-        return result
-    
-    def execute_test(self):
-        """Run tests"""
-        self.log("🧪 Running tests...")
-        result = self.run_master("--test")
-        self.last_results["test"] = result
-        if result.get("success"):
-            self.log("✅ Tests passed")
-        else:
-            self.log(f"❌ Tests failed: {result.get('error')}", "error")
-        return result
-    
-    def execute_deploy_check(self):
-        """Full deployment check"""
-        self.log("🚀 Running deployment check...")
-        result = self.run_master("--deploy-check")
-        self.last_results["deploy_check"] = result
-        if result.get("success"):
-            self.log("✅ Deployment ready!")
-        else:
-            self.log(f"❌ Deployment check failed: {result.get('error')}", "error")
-        return result
-    
-    def execute_full_cycle(self):
-        """Run complete command cycle"""
-        self.log("=" * 60)
-        self.log("🚀 STARTING AUTONOMOUS COMMAND CYCLE")
-        self.log("=" * 60)
-        
-        # Always run pre-pull first (safety)
-        self.execute_pre_pull()
-        
-        # Run periodic tasks
-        current_time = time.time()
-        
-        if current_time - self.schedule["analyze"]["last_run"] > self.schedule["analyze"]["interval"]:
-            self.execute_analyze()
-            self.schedule["analyze"]["last_run"] = current_time
             
-        if current_time - self.schedule["test"]["last_run"] > self.schedule["test"]["interval"]:
-            self.execute_test()
-            self.schedule["test"]["last_run"] = current_time
+    def save_memory(self):
+        """Save shared memory"""
+        with open(self.memory_file, "w") as f:
+            json.dump(self.memory, f, indent=2)
             
-        if current_time - self.schedule["upgrade"]["last_run"] > self.schedule["upgrade"]["interval"]:
-            self.execute_upgrade()
-            self.schedule["upgrade"]["last_run"] = current_time
+    def analyze_state(self) -> Dict:
+        """Analyze current system state"""
+        print("\n" + "="*60)
+        print("🔍 ANALYZING SYSTEM STATE")
+        print("="*60)
+        
+        analysis = {
+            "timestamp": datetime.now().isoformat(),
+            "issues": [],
+            "recommendations": []
+        }
+        
+        # Check memory for broken items
+        broken = self.memory.get("broken", [])
+        if broken:
+            analysis["issues"].extend(broken)
+            analysis["recommendations"].append({
+                "priority": "HIGH",
+                "action": "fix_broken_items",
+                "items": broken
+            })
             
-        if current_time - self.schedule["deploy_check"]["last_run"] > self.schedule["deploy_check"]["interval"]:
-            self.execute_deploy_check()
-            self.schedule["deploy_check"]["last_run"] = current_time
-        
-        self.log("=" * 60)
-        self.log("✅ Command cycle complete")
-        self.log("=" * 60)
-        
-    def continuous_mode(self, interval=300):
-        """Run continuously on interval"""
-        self.running = True
-        self.log(f"🔄 Starting continuous mode (interval: {interval}s)")
-        
-        while self.running and not self.stop_event.is_set():
+        # Check for stale data
+        last_updates = self.memory.get("last_updates", {})
+        for feature, timestamp in last_updates.items():
             try:
-                self.execute_full_cycle()
-                self.log(f"💤 Sleeping for {interval}s...")
-                self.stop_event.wait(interval)
-            except KeyboardInterrupt:
-                self.log("⚠️ Interrupted by user")
-                break
-            except Exception as e:
-                self.log(f"❌ Error in continuous mode: {e}", "error")
-                time.sleep(60)
+                last_time = datetime.fromisoformat(timestamp)
+                age = (datetime.now() - last_time).total_seconds()
+                if age > 3600:  # Older than 1 hour
+                    analysis["recommendations"].append({
+                        "priority": "MEDIUM",
+                        "action": "refresh_data",
+                        "feature": feature
+                    })
+            except:
+                pass
                 
-        self.log("🛑 Continuous mode stopped")
+        # Check pending tasks
+        pending = self.memory.get("pending_tasks", [])
+        if pending:
+            analysis["recommendations"].append({
+                "priority": "HIGH",
+                "action": "process_pending_tasks",
+                "count": len(pending)
+            })
+            
+        return analysis
         
-    def status_report(self):
-        """Generate status report"""
-        report = {
-            "commander_status": "running" if self.running else "stopped",
-            "last_run": datetime.now().isoformat(),
-            "schedule": {k: {"interval": v["interval"], "last_run": datetime.fromtimestamp(v["last_run"]).isoformat() if v["last_run"] else "never"} for k, v in self.schedule.items()},
-            "last_results": {k: {"success": v.get("success"), "error": v.get("error")[:100] if v.get("error") else None} for k, v in self.last_results.items()}
-        }
-        return report
-    
-    def save_state(self, filepath="commander_state.json"):
-        """Save state to file"""
-        state = {
-            "last_results": self.last_results,
-            "schedule": {k: {"last_run": v["last_run"], "enabled": v["enabled"]} for k, v in self.schedule.items()}
-        }
-        with open(self.project_dir / filepath, "w") as f:
-            json.dump(state, f, indent=2)
-        self.log(f"💾 State saved to {filepath}")
+    def decide_commands(self, analysis: Dict) -> List[Dict]:
+        """Decide what commands to issue based on analysis"""
+        commands = []
         
-    def load_state(self, filepath="commander_state.json"):
-        """Load state from file"""
-        state_file = self.project_dir / filepath
-        if state_file.exists():
-            with open(state_file) as f:
-                state = json.load(f)
-            if "schedule" in state:
-                for k, v in state["schedule"].items():
-                    if k in self.schedule:
-                        self.schedule[k]["last_run"] = v.get("last_run", 0)
-            self.log(f"📂 State loaded from {filepath}")
-    
-    def start_daemon(self, interval=300):
-        """Start as daemon in background"""
-        self.log(f"🚀 Starting commander daemon (interval: {interval}s)")
-        thread = Thread(target=self.continuous_mode, args=(interval,))
-        thread.daemon = True
-        thread.start()
-        return thread
-    
-    def stop(self):
-        """Stop the commander"""
-        self.running = False
-        self.stop_event.set()
-        self.save_state()
-        self.log("🛑 Commander stopped")
+        # Process broken items - send fix commands
+        for issue in analysis.get("issues", []):
+            if isinstance(issue, dict) and "type" in issue:
+                commands.append({
+                    "title": f"Fix: {issue.get('type', 'Unknown')}",
+                    "objective": f"Fix the broken {issue.get('type')} component",
+                    "target_agent": issue.get("agent", "debugger_agent"),
+                    "requirements": issue,
+                    "expected_outcome": "Item fixed and working",
+                    "priority": "HIGH"
+                })
+                
+        # Process recommendations
+        for rec in analysis.get("recommendations", []):
+            action = rec.get("action")
+            
+            if action == "fix_broken_items":
+                commands.append({
+                    "title": "Fix Broken Items",
+                    "objective": "Analyze and fix any broken components",
+                    "target_agent": "debugger_agent",
+                    "requirements": {"action": "analyze_and_fix"},
+                    "expected_outcome": "All broken items resolved",
+                    "priority": rec.get("priority", "MEDIUM")
+                })
+                
+            elif action == "refresh_data":
+                commands.append({
+                    "title": "Refresh Data",
+                    "objective": f"Refresh stale data for {rec.get('feature')}",
+                    "target_agent": "news_agent",
+                    "requirements": {"feature": rec.get("feature")},
+                    "expected_outcome": "Data refreshed and up to date",
+                    "priority": rec.get("priority", "MEDIUM")
+                })
+                
+            elif action == "process_pending_tasks":
+                commands.append({
+                    "title": "Process Pending Tasks",
+                    "objective": "Execute all pending tasks from queue",
+                    "target_agent": "master_agent",
+                    "requirements": {"task_type": "pending"},
+                    "expected_outcome": "All pending tasks completed",
+                    "priority": rec.get("priority", "HIGH")
+                })
+                
+        # Always include routine maintenance commands
+        commands.append({
+            "title": "Run Pre-Pull Validation",
+            "objective": "Validate all code before any deployment",
+            "target_agent": "master_agent",
+            "requirements": {"command": "--pre-pull"},
+            "expected_outcome": "All validations pass",
+            "priority": "HIGH"
+        })
+        
+        # Check if website needs updates
+        if self.needs_website_update():
+            commands.append({
+                "title": "Update Website",
+                "objective": "Ensure website reflects current state",
+                "target_agent": "website_agent",
+                "requirements": {"action": "sync_with_memory"},
+                "expected_outcome": "Website synced with memory",
+                "priority": "MEDIUM"
+            })
+            
+        return commands
+        
+    def needs_website_update(self) -> bool:
+        """Check if website needs updating"""
+        features = self.memory.get("features", [])
+        return len(features) > 0
+        
+    def output_commands(self, commands: List[Dict]):
+        """Output structured commands to file"""
+        output = {
+            "timestamp": datetime.now().isoformat(),
+            "command_count": len(commands),
+            "commands": commands
+        }
+        
+        with open(self.commands_file, "w") as f:
+            json.dump(output, f, indent=2)
+            
+        print("\n" + "="*60)
+        print("📋 COMMANDER COMMANDS OUTPUT")
+        print("="*60)
+        for i, cmd in enumerate(commands, 1):
+            print(f"\n[{i}] {cmd.get('title', 'Untitled')}")
+            print(f"    Objective: {cmd.get('objective', 'N/A')}")
+            print(f"    Target: {cmd.get('target_agent', 'N/A')}")
+            print(f"    Priority: {cmd.get('priority', 'N/A')}")
+            
+        return output
+        
+    def run(self) -> List[Dict]:
+        """Main execution - analyze and decide commands"""
+        print("\n" + "="*60)
+        print("🎖️  COMMANDER AGENT")
+        print("="*60)
+        
+        # Step 1: Analyze system state
+        analysis = self.analyze_state()
+        
+        # Step 2: Decide what commands to issue
+        commands = self.decide_commands(analysis)
+        
+        # Step 3: Output commands
+        self.output_commands(commands)
+        
+        return commands
+        
+    def get_commands(self) -> List[Dict]:
+        """Get current commands from file"""
+        if self.commands_file.exists():
+            with open(self.commands_file) as f:
+                data = json.load(f)
+                return data.get("commands", [])
+        return []
+        
+    def mark_task_complete(self, task_title: str):
+        """Mark a task as completed in memory"""
+        if "completed_tasks" not in self.memory:
+            self.memory["completed_tasks"] = []
+            
+        self.memory["completed_tasks"].append({
+            "task": task_title,
+            "completed_at": datetime.now().isoformat()
+        })
+        
+        # Remove from pending if there
+        pending = self.memory.get("pending_tasks", [])
+        self.memory["pending_tasks"] = [t for t in pending if t != task_title]
+        
+        self.save_memory()
 
 
 def main():
     import argparse
     
-    parser = argparse.ArgumentParser(description="Clawbot Commander Agent")
-    parser.add_argument("--run", action="store_true", help="Run full command cycle once")
-    parser.add_argument("--daemon", action="store_true", help="Run continuously as daemon")
-    parser.add_argument("--interval", type=int, default=300, help="Daemon interval in seconds")
-    parser.add_argument("--pre-pull", action="store_true", help="Run pre-pull only")
-    parser.add_argument("--analyze", action="store_true", help="Run analyze only")
-    parser.add_argument("--upgrade", action="store_true", help="Run upgrade only")
-    parser.add_argument("--test", action="store_true", help="Run test only")
-    parser.add_argument("--deploy-check", action="store_true", help="Run deploy check")
-    parser.add_argument("--status", action="store_true", help="Show status")
+    parser = argparse.ArgumentParser(description="Commander Agent - Autonomous Decision Maker")
+    parser.add_argument("--run", action="store_true", help="Run analysis and output commands")
+    parser.add_argument("--get-commands", action="store_true", help="Get current commands")
+    parser.add_argument("--complete", type=str, help="Mark task as complete")
     
     args = parser.parse_args()
     
     commander = CommanderAgent()
-    commander.load_state()
     
-    if args.status:
-        print(json.dumps(commander.status_report(), indent=2))
-        
-    elif args.daemon:
-        commander.start_daemon(args.interval)
-        try:
-            while True:
-                time.sleep(60)
-        except KeyboardInterrupt:
-            commander.stop()
-            
-    elif args.run:
-        commander.execute_full_cycle()
-        
-    elif args.pre_pull:
-        commander.execute_pre_pull()
-        
-    elif args.analyze:
-        commander.execute_analyze()
-        
-    elif args.upgrade:
-        commander.execute_upgrade()
-        
-    elif args.test:
-        commander.execute_test()
-        
-    elif args.deploy_check:
-        commander.execute_deploy_check()
-        
+    if args.run:
+        commander.run()
+    elif args.get_commands:
+        commands = commander.get_commands()
+        print(json.dumps(commands, indent=2))
+    elif args.complete:
+        commander.mark_task_complete(args.complete)
+        print(f"Marked '{args.complete}' as complete")
     else:
-        print("Commander Agent - Autonomous task runner")
+        print("Commander Agent - Autonomous Decision Maker")
         print("Usage:")
-        print("  python commander_agent.py --run           # Run full cycle once")
-        print("  python commander_agent.py --daemon       # Run continuously")
-        print("  python commander_agent.py --daemon --interval 60  # Every 60s")
-        print("  python commander_agent.py --pre-pull     # Pre-pull only")
-        print("  python commander_agent.py --analyze      # Analyze only")
-        print("  python commander_agent.py --upgrade      # Upgrade only")
-        print("  python commander_agent.py --status       # Show status")
+        print("  python commander_agent.py --run              # Analyze and output commands")
+        print("  python commander_agent.py --get-commands   # Get current commands")
+        print("  python commander_agent.py --complete 'Task' # Mark task complete")
 
 
 if __name__ == "__main__":

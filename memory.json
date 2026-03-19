@@ -1,0 +1,103 @@
+{
+  "system_state": "running",
+  "version": "1.0.0",
+  "features": [
+    {
+      "name": "dashboard",
+      "description": "Stock intelligence dashboard",
+      "status": "active",
+      "added_at": "2026-03-19T10:00:00"
+    },
+    {
+      "name": "portfolio",
+      "description": "Portfolio management",
+      "status": "active",
+      "added_at": "2026-03-19T10:00:00"
+    },
+    {
+      "name": "news",
+      "description": "Market news feed",
+      "status": "active",
+      "added_at": "2026-03-19T10:00:00"
+    },
+    {
+      "name": "agents",
+      "description": "AI agents control panel",
+      "status": "active",
+      "added_at": "2026-03-19T10:00:00"
+    }
+  ],
+  "broken": [],
+  "last_updates": {
+    "dashboard": "2026-03-19T10:00:00",
+    "portfolio": "2026-03-19T10:00:00",
+    "news": "2026-03-19T10:00:00",
+    "agents": "2026-03-19T10:00:00",
+    "stocks": "2026-03-19T10:00:00"
+  },
+  "completed_tasks": [
+    {
+      "task": "Initial setup",
+      "completed_at": "2026-03-19T10:00:00"
+    }
+  ],
+  "pending_tasks": [],
+  "stocks": [
+    {
+      "symbol": "NANO",
+      "name": "Nano One Materials",
+      "sector": "Battery Tech"
+    },
+    {
+      "symbol": "WPM",
+      "name": "Wheaton Precious Metals",
+      "sector": "Precious Metals"
+    },
+    {
+      "symbol": "SHOP",
+      "name": "Shopify Inc",
+      "sector": "E-commerce"
+    },
+    {
+      "symbol": "BB",
+      "name": "BlackBerry Ltd",
+      "sector": "Enterprise Software"
+    },
+    {
+      "symbol": "GSY",
+      "name": "goeasy Ltd",
+      "sector": "Fintech"
+    },
+    {
+      "symbol": "DOL",
+      "name": "Dollarama Inc",
+      "sector": "Retail"
+    }
+  ],
+  "routes": {
+    "/": "Dashboard",
+    "/api/stocks": "Stock data",
+    "/api/portfolio": "Portfolio management",
+    "/api/news": "Market news",
+    "/api/agents": "Agent control"
+  },
+  "command_results": [
+    {
+      "command": "Run Pre-Pull Validation",
+      "success": true,
+      "timestamp": "2026-03-19T10:58:44.133862"
+    },
+    {
+      "command": "Update Website",
+      "success": true,
+      "timestamp": "2026-03-19T10:58:44.175303"
+    }
+  ],
+  "last_system_run": "2026-03-19T10:58:44.175318",
+  "last_run_success": true,
+  "last_run_stats": {
+    "total": 2,
+    "success": 2,
+    "failed": 0
+  }
+}
