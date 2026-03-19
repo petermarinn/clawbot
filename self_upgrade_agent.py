@@ -1,9 +1,5 @@
-#!/usr/bin/env python3
-"""
-self_upgrade_agent.py - Self-upgrading agent for Clawbot
-Researches web/GitHub for improvements and auto-updates other agents
-"""
-
+from datetime import datetime
+from pathlib import Path
 import json
 import logging
 import os
@@ -12,8 +8,12 @@ import subprocess
 import sys
 import urllib.error
 import urllib.request
-from datetime import datetime
-from pathlib import Path
+#!/usr/bin/env python3
+"""
+self_upgrade_agent.py - Self-upgrading agent for Clawbot
+Researches web/GitHub for improvements and auto-updates other agents
+"""
+
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)

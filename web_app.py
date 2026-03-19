@@ -343,19 +343,22 @@ def api_run_agent():
         "debugger": "debugger_agent.py",
         "tester": "tester_agent.py",
         "installer": "installer_agent.py",
-        "upgrade": "self_upgrade_agent.py"
+        "upgrade": "self_upgrade_agent.py",
+        "commander": "commander_agent.py"
     }
     
     if agent_name not in agents:
         return jsonify({"error": "Unknown agent"}), 400
     
     try:
+        # Commander runs full cycle, others use --check
+        args = ["--run"] if agent_name == "commander" else ["--check"]
         result = subprocess.run(
-            [sys.executable, agents[agent_name], "--check"],
+            [sys.executable, agents[agent_name]] + args,
             cwd=str(Path(__file__).parent),
             capture_output=True,
             text=True,
-            timeout=60
+            timeout=120 if agent_name == "commander" else 60
         )
         return jsonify({
             "agent": agent_name,
@@ -691,13 +694,14 @@ HTML = '''<!DOCTYPE html>
         // Agents tab
         function renderAgents() {
             const tabContent = document.getElementById('tab-dashboard');
-            tabContent.innerHTML = `<div class="card"><div class="card-header"><div class="card-title">AI Agents</div></div>
+            tabContent.innerHTML = `<div class="card"><div class="card-header"><div class="card-title">🤖 AI Agents</div></div>
                 <div style="padding:20px;">
                     <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:15px;">
-                        <div class="stock-card"><h3>Debugger</h3><p style="color:var(--text-muted);font-size:13px;">Syntax checking, error tracing</p><button class="btn btn-primary" style="margin-top:10px;" onclick="runAgent('debugger')">Run</button></div>
-                        <div class="stock-card"><h3>Tester</h3><p style="color:var(--text-muted);font-size:13px;">Test all agents</p><button class="btn btn-primary" style="margin-top:10px;" onclick="runAgent('tester')">Run</button></div>
-                        <div class="stock-card"><h3>Installer</h3><p style="color:var(--text-muted);font-size:13px;">Check dependencies</p><button class="btn btn-primary" style="margin-top:10px;" onclick="runAgent('installer')">Run</button></div>
-                        <div class="stock-card"><h3>Upgrade</h3><p style="color:var(--text-muted);font-size:13px;">Auto-upgrade agents</p><button class="btn btn-primary" style="margin-top:10px;" onclick="runAgent('upgrade')">Run</button></div>
+                        <div class="stock-card"><h3>🔧 Debugger</h3><p style="color:var(--text-muted);font-size:13px;">Syntax checking, error tracing</p><button class="btn btn-primary" style="margin-top:10px;" onclick="runAgent('debugger')">Run</button></div>
+                        <div class="stock-card"><h3>🧪 Tester</h3><p style="color:var(--text-muted);font-size:13px;">Test all agents</p><button class="btn btn-primary" style="margin-top:10px;" onclick="runAgent('tester')">Run</button></div>
+                        <div class="stock-card"><h3>📦 Installer</h3><p style="color:var(--text-muted);font-size:13px;">Check dependencies</p><button class="btn btn-primary" style="margin-top:10px;" onclick="runAgent('installer')">Run</button></div>
+                        <div class="stock-card"><h3>🔄 Upgrade</h3><p style="color:var(--text-muted);font-size:13px;">Auto-upgrade agents</p><button class="btn btn-primary" style="margin-top:10px;" onclick="runAgent('upgrade')">Run</button></div>
+                        <div class="stock-card" style="border:2px solid var(--blue);"><h3>🎛️ Commander</h3><p style="color:var(--text-muted);font-size:13px;">Autonomous - runs all agents</p><button class="btn btn-primary" style="margin-top:10px;background:var(--blue);" onclick="runAgent('commander')">START</button></div>
                     </div>
                     <div id="agent-output" style="margin-top:20px;padding:15px;background:var(--bg-dark);border-radius:8px;font-family:monospace;font-size:12px;white-space:pre-wrap;display:none;"></div>
                 </div></div>`;

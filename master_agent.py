@@ -1,12 +1,13 @@
+from pathlib import Path
+import os
+import subprocess
+import sys
 #!/usr/bin/env python3
 """
 master_agent.py - Master agent that orchestrates all other agents
 Runs debugger, tester, installer, website_agent, and self_upgrade_agent
 """
 
-import subprocess
-import sys
-from pathlib import Path
 
 
 class MasterAgent:
