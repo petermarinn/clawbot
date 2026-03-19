@@ -106,84 +106,76 @@
     {
       "command": "Refresh Data",
       "success": true,
-      "timestamp": "2026-03-19T11:19:21.711316"
+      "timestamp": "2026-03-19T11:19:21"
     },
     {
       "command": "Add Stock Detail Pages",
       "success": true,
-      "timestamp": "2026-03-19T11:45:40.552667"
+      "timestamp": "2026-03-19T11:45:40"
     },
     {
       "command": "Add Company Logos",
       "success": true,
-      "timestamp": "2026-03-19T18:46:09.839656"
+      "timestamp": "2026-03-19T12:00:00"
     },
     {
       "command": "Run Pre-Pull Validation",
       "success": true,
-      "timestamp": "2026-03-19T18:46:10.078112"
+      "timestamp": "2026-03-19T12:05:00"
     },
     {
       "command": "Update Website",
       "success": true,
-      "timestamp": "2026-03-19T18:46:10.120685"
-    },
-    {
-      "command": "Add Company Logos",
-      "success": true,
-      "timestamp": "2026-03-19T18:46:33.743396"
-    },
-    {
-      "command": "Run Pre-Pull Validation",
-      "success": true,
-      "timestamp": "2026-03-19T18:46:33.974125"
-    },
-    {
-      "command": "Update Website",
-      "success": true,
-      "timestamp": "2026-03-19T18:46:34.015250"
-    },
-    {
-      "command": "Add Company Logos",
-      "success": true,
-      "timestamp": "2026-03-19T18:47:34.104155"
-    },
-    {
-      "command": "Run Pre-Pull Validation",
-      "success": true,
-      "timestamp": "2026-03-19T18:47:34.335663"
-    },
-    {
-      "command": "Update Website",
-      "success": true,
-      "timestamp": "2026-03-19T18:47:34.376975"
-    },
-    {
-      "command": "Run Pre-Pull Validation",
-      "success": true,
-      "timestamp": "2026-03-19T18:48:18.840331"
-    },
-    {
-      "command": "Update Website",
-      "success": true,
-      "timestamp": "2026-03-19T18:48:18.881751"
-    },
-    {
-      "command": "Run Pre-Pull Validation",
-      "success": true,
-      "timestamp": "2026-03-19T18:49:19.173053"
-    },
-    {
-      "command": "Update Website",
-      "success": true,
-      "timestamp": "2026-03-19T18:49:19.215169"
+      "timestamp": "2026-03-19T12:05:01"
     }
   ],
-  "last_system_run": "2026-03-19T18:49:19.215185",
+  "last_system_run": "2026-03-19T18:56:21.481196",
   "last_run_success": true,
   "last_run_stats": {
     "total": 2,
     "success": 2,
     "failed": 0
+  },
+  "agents": {
+    "commander_agent": {
+      "status": "running",
+      "last_active": "2026-03-19T18:56:45.059150"
+    },
+    "master_agent": {
+      "status": "running",
+      "last_active": "2026-03-19T18:56:45.059160"
+    },
+    "website_agent": {
+      "status": "idle",
+      "last_active": "2026-03-19T18:56:45.059162"
+    },
+    "news_agent": {
+      "status": "idle",
+      "last_active": "2026-03-19T18:56:45.059163"
+    },
+    "debugger_agent": {
+      "status": "idle",
+      "last_active": null
+    },
+    "tester_agent": {
+      "status": "idle",
+      "last_active": null
+    },
+    "installer_agent": {
+      "status": "idle",
+      "last_active": null
+    },
+    "self_upgrade_agent": {
+      "status": "idle",
+      "last_active": null
+    },
+    "alert_agent": {
+      "status": "idle",
+      "last_active": null
+    },
+    "portfolio_agent": {
+      "status": "idle",
+      "last_active": null
+    }
   }
 }
