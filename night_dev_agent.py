@@ -4,7 +4,7 @@ import os
 import time
 import json
 
-MODEL = "mistral:7b"
+MODEL = "qwen2.5:0.5b"
 OLLAMA = "http://localhost:11434/api/generate"
 WORKSPACE = os.getcwd()
 

@@ -3,7 +3,7 @@ import subprocess
 import os
 import time
 
-MODEL = "mistral:7b"
+MODEL = "qwen2.5:0.5b"
 OLLAMA = "http://localhost:11434/api/generate"
 
 WORKSPACE = os.getcwd()
