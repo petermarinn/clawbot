@@ -1,16 +1,20 @@
+from datetime import datetime
+from pathlib import Path
+import ast
+import importlib
+import json
+import logging
+import os
+import subprocess
+import sys
 #!/usr/bin/env python3
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+logger = logging.getLogger(__name__)
 """
 tester_agent.py - Testing agent for Clawbot
 Validates agent inputs/outputs, tests integrations, runs test suites
 """
 
-import ast
-import sys
-import subprocess
-import importlib
-import json
-from pathlib import Path
-from datetime import datetime
 
 
 class TesterAgent:
@@ -24,7 +28,7 @@ class TesterAgent:
         
     def test_syntax_all(self):
         """Test syntax for all Python files"""
-        print("📝 Testing syntax for all files...")
+        logger.info("📝 Testing syntax for all files...")
         
         for py_file in self.project_dir.glob("*.py"):
             try:
@@ -66,7 +70,7 @@ class TesterAgent:
             
     def test_stock_data(self, ticker="AAPL"):
         """Test stock data fetching"""
-        print(f"📈 Testing stock data for {ticker}...")
+        logger.info("📈 Testing stock data for {ticker}...")
         
         try:
             import yfinance as yf
@@ -100,7 +104,7 @@ class TesterAgent:
             
     def test_email_generation(self):
         """Test email content generation"""
-        print("📧 Testing email generation...")
+        logger.info("📧 Testing email generation...")
         
         try:
             sys.path.insert(0, str(self.project_dir))
@@ -127,7 +131,7 @@ class TesterAgent:
             
     def test_web_app_startup(self):
         """Test if web app can start"""
-        print("🌐 Testing web app startup...")
+        logger.info("🌐 Testing web app startup...")
         
         try:
             sys.path.insert(0, str(self.project_dir))
@@ -161,7 +165,7 @@ class TesterAgent:
             
     def test_api_endpoint(self, endpoint="/api/stocks"):
         """Test API endpoint"""
-        print(f"🔌 Testing API endpoint {endpoint}...")
+        logger.info("🔌 Testing API endpoint {endpoint}...")
         
         try:
             sys.path.insert(0, str(self.project_dir))
@@ -195,9 +199,9 @@ class TesterAgent:
     def run_all_tests(self):
         """Run all tests"""
         print("=" * 50)
-        print("🧪 CLAWBOT TEST SUITE")
+        logger.info("🧪 CLAWBOT TEST SUITE")
         print("=" * 50)
-        print(f"Started: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n")
+        logger.info("Started: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n")
         
         self.test_syntax_all()
         print()
@@ -215,18 +219,18 @@ class TesterAgent:
     def print_summary(self):
         """Print test summary"""
         print("=" * 50)
-        print("📊 TEST SUMMARY")
+        logger.info("📊 TEST SUMMARY")
         print("=" * 50)
-        print(f"Passed: {self.passed} ✅")
-        print(f"Failed: {self.failed} ❌")
-        print(f"Total:  {self.passed + self.failed}")
+        logger.info("Passed: {self.passed} ✅")
+        logger.info("Failed: {self.failed} ❌")
+        logger.info("Total:  {self.passed + self.failed}")
         print()
         
         if self.failed > 0:
-            print("Failed tests:")
+            logger.info("Failed tests:")
             for r in self.test_results:
                 if r["status"] == "FAIL":
-                    print(f"  ❌ {r['test']}: {r.get('error', 'Unknown error')}")
+                    logger.info("  ❌ {r['test']}: {r.get('error', 'Unknown error')}")
                     
         return self.failed == 0
         
@@ -243,7 +247,7 @@ class TesterAgent:
         with open(output_file, 'w') as f:
             json.dump(report, f, indent=2)
             
-        print(f"📄 Report saved to {output_file}")
+        logger.info("📄 Report saved to {output_file}")
 
 
 def main():
@@ -268,12 +272,12 @@ def main():
     elif args.web:
         tester.test_web_app_startup()
     else:
-        print("Clawot Tester Agent")
-        print("Usage:")
-        print("  python tester_agent.py --all      # Run all tests")
-        print("  python tester_agent.py --syntax  # Syntax only")
-        print("  python tester_agent.py --web     # Web app test")
-        print("  python tester_agent.py --report  # Generate JSON report")
+        logger.info("Clawot Tester Agent")
+        logger.info("Usage:")
+        logger.info("  python tester_agent.py --all      # Run all tests")
+        logger.info("  python tester_agent.py --syntax  # Syntax only")
+        logger.info("  python tester_agent.py --web     # Web app test")
+        logger.info("  python tester_agent.py --report  # Generate JSON report")
         
 
 if __name__ == "__main__":

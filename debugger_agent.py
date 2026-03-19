@@ -1,15 +1,18 @@
+from pathlib import Path
+import ast
+import logging
+import os
+import subprocess
+import sys
+import traceback
 #!/usr/bin/env python3
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+logger = logging.getLogger(__name__)
 """
 debugger_agent.py - Debugging and troubleshooting agent for Clawbot
 Helps identify syntax errors, trace issues, analyze logs, and diagnose problems
 """
 
-import ast
-import sys
-import traceback
-import subprocess
-import os
-from pathlib import Path
 
 
 class DebuggerAgent:
@@ -87,40 +90,40 @@ class DebuggerAgent:
     
     def run_pre_push_checks(self):
         """Run pre-push validation"""
-        print("🔍 Running pre-push checks...")
+        logger.info("🔍 Running pre-push checks...")
         
         # Syntax check
-        print("  📝 Checking Python syntax...")
+        logger.info("  📝 Checking Python syntax...")
         syntax_results = self.check_syntax()
         
         errors = [r for r in syntax_results if r["status"] == "ERROR"]
         
         if errors:
-            print(f"  ❌ Found {len(errors)} syntax errors:")
+            logger.info("  ❌ Found {len(errors)} syntax errors:")
             for e in errors:
-                print(f"     - {e['file']}: {e['error']}")
+                logger.info("     - {e['file']}: {e['error']}")
             return False
         else:
-            print(f"  ✅ All {len(syntax_results)} files pass syntax check")
+            logger.info("  ✅ All {len(syntax_results)} files pass syntax check")
             
         return True
     
     def diagnose_file(self, filepath):
         """Full diagnostic for a file"""
-        print(f"\n🔧 Diagnosing {filepath}...")
+        logger.info("\n🔧 Diagnosing {filepath}...")
         
         # Syntax
         syntax = self.check_syntax(filepath)
-        print(f"  Syntax: {syntax[0]['status']}")
+        logger.info("  Syntax: {syntax[0]['status']}")
         
         # Imports
         imports = self.check_imports(filepath)
         missing = [i for i in imports if i["status"] == "MISSING"]
         
         if missing:
-            print(f"  Missing imports: {', '.join(m['import'] for m in missing)}")
+            logger.info("  Missing imports: {', '.join(m['import'] for m in missing)}")
         else:
-            print(f"  Imports: All OK")
+            logger.info("  Imports: All OK")
             
         return {
             "syntax": syntax,
@@ -160,10 +163,10 @@ def main():
     elif args.diagnose:
         debugger.diagnose_file(args.diagnose)
     else:
-        print("Clawbot Debugger Agent")
-        print("Usage:")
-        print("  python debugger_agent.py --check       # Pre-push validation")
-        print("  python debugger_agent.py --diagnose FILE  # Full diagnostic")
+        logger.info("Clawbot Debugger Agent")
+        logger.info("Usage:")
+        logger.info("  python debugger_agent.py --check       # Pre-push validation")
+        logger.info("  python debugger_agent.py --diagnose FILE  # Full diagnostic")
 
 
 if __name__ == "__main__":

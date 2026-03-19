@@ -1,3 +1,9 @@
+from datetime import datetime
+import click
+import json
+import os
+import requests
+import yfinance as yf
 """
 Portfolio Tracker Agent
 Track and analyze your stock portfolio
@@ -9,12 +15,6 @@ Usage:
     python portfolio_agent.py analyze
 """
 
-import click
-import json
-import os
-import requests
-import yfinance as yf
-from datetime import datetime
 
 OLLAMA_URL = "http://localhost:11434/api/generate"
 DEFAULT_MODEL = os.environ.get("OLLAMA_MODEL", "qwen2.5:0.5b")

@@ -1,3 +1,13 @@
+from datetime import datetime
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
+import click
+import json
+import logging
+import os
+import smtplib
+import time
+import yfinance as yf
 """
 Price Alert Agent
 Set price alerts for stocks
@@ -10,15 +20,8 @@ Usage:
     python alert_agent.py check --email
 """
 
-import click
-import json
-import os
-import time
-import yfinance as yf
-import smtplib
-from email.mime.text import MIMEText
-from email.mime.multipart import MIMEMultipart
-from datetime import datetime
+
+# SECURITY: Never hardcode secrets - use env vars
 
 ALERT_FILE = "alerts.json"
 

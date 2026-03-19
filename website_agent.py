@@ -1,15 +1,18 @@
+from datetime import datetime
+from pathlib import Path
+import logging
+import os
+import signal
+import subprocess
+import sys
 #!/usr/bin/env python3
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+logger = logging.getLogger(__name__)
 """
 website_agent.py - Website management agent for Clawbot
 Manages web_app.py, frontend, API endpoints, templates, and serving
 """
 
-import subprocess
-import sys
-import os
-import signal
-from pathlib import Path
-from datetime import datetime
 
 
 class WebsiteAgent:
@@ -56,15 +59,15 @@ class WebsiteAgent:
             
         missing = self.check_dependencies()
         if missing:
-            print(f"❌ Missing dependencies: {', '.join(missing)}")
+            logger.info("❌ Missing dependencies: {', '.join(missing)}")
             print("   Run: pip install " + " ".join(missing))
             return False
             
         if not self.check_syntax():
-            print("❌ web_app.py has syntax errors!")
+            logger.info("❌ web_app.py has syntax errors!")
             return False
             
-        print(f"🌐 Starting web server on port {self.port}...")
+        logger.info("🌐 Starting web server on port {self.port}...")
         
         # Start in background
         env = os.environ.copy()
@@ -78,7 +81,7 @@ class WebsiteAgent:
             stderr=subprocess.PIPE
         )
         
-        print(f"✅ Server running! Open http://localhost:{self.port}")
+        logger.info("✅ Server running! Open http://localhost:{self.port}")
         return True
     
     def stop_server(self):
@@ -87,11 +90,11 @@ class WebsiteAgent:
             self.process.terminate()
             self.process.wait()
             self.process = None
-            print("🛑 Server stopped")
+            logger.info("🛑 Server stopped")
         else:
             # Try to kill by port
             subprocess.run(["pkill", "-f", "web_app.py"])
-            print("🛑 Server stopped")
+            logger.info("🛑 Server stopped")
     
     def restart_server(self, port=None):
         """Restart the web server"""
@@ -125,18 +128,18 @@ class WebsiteAgent:
     def add_api_endpoint(self, endpoint_name, handler_code):
         """Add a new API endpoint to web_app.py"""
         # This is a placeholder - would need to parse and modify web_app.py
-        print(f"📝 Would add endpoint: {endpoint_name}")
-        print(f"   Code: {handler_code[:50]}...")
+        logger.info("📝 Would add endpoint: {endpoint_name}")
+        logger.info("   Code: {handler_code[:50]}...")
         
     def list_routes(self):
         """List all API routes"""
-        print("📡 Available routes:")
-        print("   GET /                    - Main dashboard")
-        print("   GET /api/stocks          - Get all stocks")
-        print("   GET /api/stock/<symbol>  - Get specific stock")
-        print("   POST /api/refresh        - Refresh data")
-        print("   GET /api/alerts          - Get alerts")
-        print("   POST /api/alerts         - Create alert")
+        logger.info("📡 Available routes:")
+        logger.info("   GET /                    - Main dashboard")
+        logger.info("   GET /api/stocks          - Get all stocks")
+        logger.info("   GET /api/stock/<symbol>  - Get specific stock")
+        logger.info("   POST /api/refresh        - Refresh data")
+        logger.info("   GET /api/alerts          - Get alerts")
+        logger.info("   POST /api/alerts         - Create alert")
         
     def check_port(self, port=None):
         """Check if port is available"""
@@ -164,7 +167,7 @@ class WebsiteAgent:
     
     def deploy_to_production(self):
         """Deploy to production (penguin)"""
-        print("🚀 Deploying to production...")
+        logger.info("🚀 Deploying to production...")
         
         # Check if on penguin
         result = subprocess.run(
@@ -178,12 +181,12 @@ class WebsiteAgent:
             return self.restart_server()
         else:
             # Need to push to git
-            print("   Committing changes...")
+            logger.info("   Committing changes...")
             subprocess.run(["git", "add", "-A"], cwd=self.project_dir)
             subprocess.run(["git", "commit", "-m", "Website updates"], cwd=self.project_dir)
             subprocess.run(["git", "push"], cwd=self.project_dir)
-            print("   ✅ Changes pushed to GitHub")
-            print("   ℹ️  Penguin will auto-pull in 15 minutes")
+            logger.info("   ✅ Changes pushed to GitHub")
+            logger.info("   ℹ️  Penguin will auto-pull in 15 minutes")
             return True
 
 
@@ -213,9 +216,9 @@ def main():
         agent.restart_server(port=args.port)
     elif args.status:
         status = agent.get_status()
-        print(f"Status: {status['status']}")
+        logger.info("Status: {status['status']}")
         if 'pid' in status:
-            print(f"PID: {status['pid']}")
+            logger.info("PID: {status['pid']}")
     elif args.routes:
         agent.list_routes()
     elif args.deploy:
@@ -223,18 +226,18 @@ def main():
     elif args.check:
         missing = agent.check_dependencies()
         if missing:
-            print(f"Missing: {missing}")
+            logger.info("Missing: {missing}")
         else:
-            print("All dependencies OK!")
+            logger.info("All dependencies OK!")
     else:
-        print("Clawbot Website Agent")
-        print("Usage:")
-        print("  python website_agent.py --start          # Start server")
-        print("  python website_agent.py --stop          # Stop server")
-        print("  python website_agent.py --restart        # Restart server")
-        print("  python website_agent.py --status        # Check status")
-        print("  python website_agent.py --routes         # List routes")
-        print("  python website_agent.py --deploy        # Deploy to production")
+        logger.info("Clawbot Website Agent")
+        logger.info("Usage:")
+        logger.info("  python website_agent.py --start          # Start server")
+        logger.info("  python website_agent.py --stop          # Stop server")
+        logger.info("  python website_agent.py --restart        # Restart server")
+        logger.info("  python website_agent.py --status        # Check status")
+        logger.info("  python website_agent.py --routes         # List routes")
+        logger.info("  python website_agent.py --deploy        # Deploy to production")
 
 
 if __name__ == "__main__":

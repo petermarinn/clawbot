@@ -1,3 +1,12 @@
+from ddgs import DDGS
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
+import click
+import json
+import logging
+import os
+import requests
+import smtplib
 """
 Financial News Agent
 Get latest stock market news and AI analysis
@@ -8,14 +17,8 @@ Usage:
     python news_agent.py "Federal Reserve" --email
 """
 
-import click
-import requests
-import json
-import os
-import smtplib
-from email.mime.text import MIMEText
-from email.mime.multipart import MIMEMultipart
-from ddgs import DDGS
+
+# SECURITY: Never hardcode secrets - use env vars
 
 OLLAMA_URL = "http://localhost:11434/api/generate"
 DEFAULT_MODEL = os.environ.get("OLLAMA_MODEL", "qwen2.5:0.5b")

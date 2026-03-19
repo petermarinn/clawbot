@@ -1,3 +1,13 @@
+from datetime import datetime
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
+import asyncio
+import click
+import json
+import logging
+import os
+import smtplib
+import sys
 """
 Stock Analysis Multi-Agent System
 Manager → Planner → (Researcher + Quant + Sentiment + Risk) → Synthesizer → Decision
@@ -9,15 +19,8 @@ Usage:
     python multi_stock_agent.py AAPL --output report.txt
 """
 
-import sys
-import os
-import click
-import json
-import asyncio
-from datetime import datetime
-import smtplib
-from email.mime.text import MIMEText
-from email.mime.multipart import MIMEMultipart
+
+# SECURITY: Never hardcode secrets - use env vars
 
 # Dependencies
 try:

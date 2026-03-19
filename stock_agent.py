@@ -1,3 +1,12 @@
+from datetime import datetime
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
+import click
+import json
+import logging
+import os
+import smtplib
+import sys
 #!/usr/bin/env python3
 """
 Stock Analysis Agent
@@ -10,14 +19,8 @@ Usage:
     python stock_agent.py AAPL --email
 """
 
-import sys
-import os
-import click
-import json
-from datetime import datetime
-import smtplib
-from email.mime.text import MIMEText
-from email.mime.multipart import MIMEMultipart
+
+# SECURITY: Never hardcode secrets - use env vars
 
 # Try to import yfinance (free stock data)
 try:

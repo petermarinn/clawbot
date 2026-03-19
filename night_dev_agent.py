@@ -1,8 +1,8 @@
+import json
+import os
 import requests
 import subprocess
-import os
 import time
-import json
 
 MODEL = "qwen2.5:0.5b"
 OLLAMA = "http://localhost:11434/api/generate"
@@ -42,12 +42,12 @@ def ask_llm(prompt):
             },
             timeout=60
         )
-        print(f"Status: {r.status_code}")
-        print(f"Response: {r.text[:200]}")
+        logger.info("Status: {r.status_code}")
+        logger.info("Response: {r.text[:200]}")
         data = r.json()
         return data.get("response", "") or data.get("message", {}).get("content", "")
     except Exception as e:
-        print(f"LLM Error: {e}")
+        logger.info("LLM Error: {e}")
         return ""
 
 
