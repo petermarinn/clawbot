@@ -25,15 +25,21 @@ Respond with bash commands or code blocks.
 
 
 def ask_llm(prompt):
-    r = requests.post(
-        OLLAMA,
-        json={
-            "model": MODEL,
-            "prompt": SYSTEM_PROMPT + "\nTask:\n" + prompt,
-            "stream": False
-        }
-    )
-    return r.json()["response"]
+    try:
+        r = requests.post(
+            OLLAMA,
+            json={
+                "model": MODEL,
+                "prompt": SYSTEM_PROMPT + "\nTask:\n" + prompt,
+                "stream": False
+            },
+            timeout=60
+        )
+        data = r.json()
+        return data.get("response", "") or data.get("message", {}).get("content", "")
+    except Exception as e:
+        print(f"LLM Error: {e}")
+        return ""
 
 
 def run_command(cmd):
