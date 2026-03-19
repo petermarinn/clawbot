@@ -925,7 +925,7 @@ HTML = '''<!DOCTYPE html>
             });
         }
         
-        function selectStock(symbol) { selectedStock = symbol; renderStockGrid(); renderChart(); }
+        function selectStock(symbol) { window.location.href = "/stock/" + symbol; }
         
         function setTimeframe(tf) { currentTimeframe = tf; document.querySelectorAll('.timeframe-btn').forEach(b => b.classList.remove('active')); event.target.classList.add('active'); renderChart(); }
         

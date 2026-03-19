@@ -25,6 +25,12 @@
       "description": "AI agents control panel",
       "status": "active",
       "added_at": "2026-03-19T10:00:00"
+    },
+    {
+      "name": "stock_pages",
+      "status": "active",
+      "description": "Stock detail pages (/stock/NANO etc)",
+      "added_at": "2026-03-19T11:50:00"
     }
   ],
   "broken": [],
