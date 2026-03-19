@@ -210,6 +210,80 @@ class CommanderAgent:
             })
         
         return analysis
+    def full_system_scan(self) -> Dict:
+        """Perform a comprehensive scan of the entire system"""
+        print("\n" + "="*60)
+        print("🔍 FULL SYSTEM SCAN")
+        print("="*60)
+        
+        scan_results = {
+            "timestamp": datetime.now().isoformat(),
+            "checks": {},
+            "issues_found": [],
+            "recommendations": []
+        }
+        
+        # Check 1: Is web server running?
+        try:
+            import requests
+            r = requests.get("http://localhost:5000/", timeout=5)
+            scan_results["checks"]["web_server"] = "OK" if r.status_code == 200 else "ERROR"
+        except:
+            scan_results["checks"]["web_server"] = "NOT_RUNNING"
+            scan_results["issues_found"].append({"type": "service_down", "target": "web_server"})
+        
+        # Check 2: Are stock pages working?
+        try:
+            r = requests.get("http://localhost:5000/stock/AAPL", timeout=5)
+            scan_results["checks"]["stock_pages"] = "OK" if r.status_code == 200 else "ERROR"
+        except:
+            scan_results["checks"]["stock_pages"] = "NOT_TESTED"
+        
+        # Check 3: Is news page working?
+        try:
+            r = requests.get("http://localhost:5000/news", timeout=5)
+            scan_results["checks"]["news_page"] = "OK" if r.status_code == 200 else "ERROR"
+        except:
+            scan_results["checks"]["news_page"] = "NOT_TESTED"
+        
+        # Check 4: Memory state
+        mem = self.load_memory()
+        scan_results["checks"]["memory"] = "OK"
+        scan_results["checks"]["features_count"] = len(mem.get("features", []))
+        scan_results["checks"]["command_results"] = len(mem.get("command_results", []))
+        
+        # Check 5: Data freshness
+        last_stock = mem.get("last_updates", {}).get("stocks")
+        if last_stock:
+            from datetime import datetime
+            try:
+                last_time = datetime.fromisoformat(last_stock)
+                age = (datetime.now() - last_time).total_seconds()
+                scan_results["checks"]["data_age_seconds"] = int(age)
+                if age > 3600:
+                    scan_results["issues_found"].append({"type": "stale_data", "target": "stocks"})
+            except:
+                pass
+        
+        # Generate recommendations based on scan
+        if scan_results["issues_found"]:
+            scan_results["recommendations"].append({
+                "priority": "HIGH",
+                "action": "fix_issues",
+                "issues": scan_results["issues_found"]
+            })
+        
+        # Always recommend data refresh
+        scan_results["recommendations"].append({
+            "priority": "MEDIUM",
+            "action": "refresh_data",
+            "description": "Keep data fresh"
+        })
+        
+        print(f"✅ Scan complete: {len(scan_results['issues_found'])} issues found")
+        return scan_results
+
+
     
     def has_feature(self, feature_name: str) -> bool:
         """Check if a feature has been implemented"""
