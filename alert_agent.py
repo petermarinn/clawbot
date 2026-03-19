@@ -28,7 +28,7 @@ EMAIL_PORT = int(os.environ.get("EMAIL_PORT", "587"))
 EMAIL_USER = os.environ.get("EMAIL_USER", "")
 EMAIL_PASSWORD = os.environ.get("EMAIL_PASSWORD", "")
 EMAIL_FROM = os.environ.get("EMAIL_FROM", "")
-EMAIL_TO = os.environ.get("EMAIL_TO", "")
+EMAIL_TO = os.environ.get("EMAIL_TO", "peterm2543@gmail.com")
 
 
 def load_alerts():

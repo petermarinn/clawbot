@@ -27,7 +27,7 @@ EMAIL_HOST = os.environ.get("EMAIL_HOST", "")
 EMAIL_PORT = int(os.environ.get("EMAIL_PORT", "587"))
 EMAIL_USER = os.environ.get("EMAIL_USER", "")
 EMAIL_PASSWORD = os.environ.get("EMAIL_PASSWORD", "")
-EMAIL_TO = os.environ.get("EMAIL_TO", "")
+EMAIL_TO = os.environ.get("EMAIL_TO", "peterm2543@gmail.com")
 
 
 # Top Canadian penny stocks - small cap, under $5, hidden gems

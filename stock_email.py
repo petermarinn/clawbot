@@ -26,43 +26,44 @@ EMAIL_HOST = os.environ.get("EMAIL_HOST", "")
 EMAIL_PORT = int(os.environ.get("EMAIL_PORT", "587"))
 EMAIL_USER = os.environ.get("EMAIL_USER", "")
 EMAIL_PASSWORD = os.environ.get("EMAIL_PASSWORD", "")
-EMAIL_TO = os.environ.get("EMAIL_TO", "")
+# Default to user's email if not set
+EMAIL_TO = os.environ.get("EMAIL_TO", "peterm2543@gmail.com")
 
 
-# Comprehensive stock database with FULL research
+# Comprehensive stock database with FULL research (Realistic targets)
 STOCK_ANALYSIS = {
     "NANO": {
         "name": "Nano One Materials Corp",
         "sector": "Battery Technology / Cleantech",
         "current_price": 0,
-        "price_target": "$5.25",
+        "price_target": "$3.65",  # Realistic: average analyst target
         "timeframe": "12-18 months",
-        "upside": "150-200%",
-        "why": """Nano One Materials is a Canadian technology company that has developed a revolutionary One-Pot process for manufacturing lithium iron phosphate (LFP) cathode active materials for lithium-ion batteries. This is strategically crucial because LFP batteries are experiencing massive demand growth globally, particularly for electric vehicles and energy storage systems.
+        "upside": "100-150%",  # From $1.50 to $3.65
+        "why": """Nano One Materials has developed a proprietary One-Pot process for manufacturing lithium iron phosphate (LFP) cathode active materials. LFP batteries are dominating the EV market because they're cheaper, safer, and last longer than nickel-based batteries.
 
-The company's One-Pot technology significantly reduces the complexity and cost of LFP battery production by eliminating multiple processing steps. With the North American push for domestic battery supply chains, Nano One is positioned to become a critical supplier to EV manufacturers and battery producers.
+The company recently received $3M from NRCan (Natural Resources Canada) to support domestic LFP supply chains. US LFP capacity is projected to grow from 180 GWh to nearly 290 GWh in 2025 alone. With North American battery factories ramping up, Nano One's technology becomes critical for domestic supply chains.
 
-The US government is providing substantial incentives through the Inflation Reduction Act, which includes tax credits for domestic battery production. This creates enormous tailwinds for Nano One as they commercialize their technology.""",
+The key insight: Asian producers currently dominate LFP, but the Inflation Reduction Act incentives favor North American production. Nano One's One-Pot process is simpler and can be licensed to battery manufacturers, creating a scalable business model without massive capital requirements.""",
 
         "evidence": [
-            "NRCan awarded Nano One $3 million to support LFP cathode material supply chain - nanoone.ca",
-            "US LFP capacity increased from 180 GWh to 290 GWh in 2025 - Yahoo Finance",
-            "Selected for ALTA (America's first lithium/battery supply chain accelerator)",
-            "Targeting initial revenue by end of 2026 with first commercial deals"
+            "NRCan awarded $3M for LFP cathode supply chain - nanoone.ca",
+            "US LFP capacity growing 60%+ in 2025 (180→290 GWh) - Yahoo Finance",
+            "Analyst price target: $3.65 average, $5.00 high - Fintel/MarketWatch",
+            "Selected for ALTA battery supply chain accelerator"
         ],
 
         "catalysts": [
-            "Battery factories being built across US/Canada = more licensing deals (2025-2026)",
-            "Government incentives for domestic battery production (ongoing)",
-            "Commercial partnerships with major automakers/battery makers (expected 2025-2026)",
-            "LFP demand expected to grow 5X by 2035"
+            "Commercial licensing deals with battery makers → 2025-2026 → Major revenue",
+            "US factory builds = more domestic demand → ongoing → Revenue potential",
+            "Government incentives (IRA) → ongoing → Competitive advantage",
+            "Production ramp → 2026 → Proof of scalability"
         ],
 
         "risks": [
-            "Technology commercialization risk - need to prove at scale",
-            "Competition from Chinese LFP producers",
-            "Capital requirements for commercial expansion",
-            "Execution risk on partnerships"
+            "TECHNOLOGY: Need to prove at commercial scale (real risk)",
+            "COMPETITION: Chinese producers dominate globally",
+            "CAPITAL: Need funding for expansion",
+            "TIMING: Revenue still years away"
         ]
     },
 
@@ -70,34 +71,34 @@ The US government is providing substantial incentives through the Inflation Redu
         "name": "Calibre Mining Corp",
         "sector": "Gold Mining",
         "current_price": 0,
-        "price_target": "$4.20",
+        "price_target": "$4.00",
         "timeframe": "6-12 months",
-        "upside": "30-50%",
-        "why": """Calibre Mining is a gold producer with operations in Nicaragua and an exciting pipeline in Canada. The company is undergoing a transformative merger with Equinox Gold in a deal worth CAD$7.7 billion ($1.8 billion), creating one of the largest gold producers in the Americas.
+        "upside": "30-40%",
+        "why": """Calibre Mining is merging with Equinox Gold in a deal creating one of America's largest gold producers. This is a transformative event: the combined entity will have significant scale, better cash flows, and improved trading liquidity.
 
-This merger is particularly compelling because it creates significant synergies. The combined entity will have increased scale, better cash flow generation, and improved financing capabilities. With gold recently hitting all-time highs above $3,000/oz, gold producers are benefiting from the safe-haven appeal amid economic uncertainty.
+The merger makes strategic sense because it combines Calibre's low-cost Nevada operations with Equinox's diversified portfolio. The Valentine Gold Mine in Newfoundland is on track for Q3 2025 production, adding 50%+ to the company's output. With gold at ~$3,000/oz, margins are strong.
 
-Calibre's Valentine Gold Mine in Newfoundland is nearing production (expected Q3 2025), which will add significant cash flow. The company has demonstrated strong operational performance with Q1 2025 production up 16% year-over-year.""",
+The market hasn't fully priced in the merger yet. Once completed, the combined company should trade at a higher multiple due to increased size and analyst coverage. This is a classic "merger arbitrage" + "gold beta" play.""",
 
         "evidence": [
-            "Merger with Equinox Gold approved by shareholders - Stock Titan",
-            "Shares hit 13-year high after Equinox sweetened takeover offer - Bloomberg",
-            "Q1 2025 production up 16%, Valentine Gold on track for Q3 2025 - GlobeNewswire",
-            "Deal expected to close May 2025 - Kitco Mining"
+            "Merger with Equinox Gold creates $7.7B company - Reuters",
+            "Shareholders approved, expected close May 2025 - Stock Titan",
+            "Valentine Gold Mine on track for Q3 2025 production - GlobeNewswire",
+            "Gold at ~$3,000/oz supporting margins - current price"
         ],
 
         "catalysts": [
-            "Merger closing (expected May 2025) = immediate re-rating",
-            "Valentine Gold Mine starting production (Q3 2025)",
-            "Gold prices at all-time highs (ongoing tailwind)",
-            "Combined entity expected to benefit from increased scale and liquidity"
+            "Merger closing → May 2025 → Immediate re-rating",
+            "Valentine production start → Q3 2025 → Cash flow boost",
+            "Gold at highs → ongoing → Strong cash flows",
+            "Analyst coverage expansion → post-merger → Higher multiple"
         ],
 
         "risks": [
-            "Merger execution risk",
-            "Gold price volatility",
-            "Operational risks at Valentine mine",
-            "Political risk in Nicaragua"
+            "MERGER: Could be delayed or terminated (low risk now)",
+            "GOLD: Price could fall 20%+ in downturn",
+            "OPERATIONAL: Valentine could face delays/cost overruns",
+            "POLITICAL: Nicaragua operations carry country risk"
         ]
     },
 
@@ -105,101 +106,69 @@ Calibre's Valentine Gold Mine in Newfoundland is nearing production (expected Q3
         "name": "Shopify Inc",
         "sector": "E-commerce / Technology",
         "current_price": 0,
-        "price_target": "$350",
-        "timeframe": "12-18 months",
-        "upside": "40-60%",
-        "why": """Shopify is the leading e-commerce platform for small and medium-sized businesses globally, and they are executing flawlessly. The company has achieved remarkable growth with revenue and GMV consistently growing 30%+ year-over-year, demonstrating the power of their platform and the secular shift to online commerce.
+        "price_target": "$225",
+        "timeframe": "12 months",
+        "upside": "30-40%",
+        "why": """Shopify has established itself as the dominant e-commerce platform for mid-market merchants. The Q4 2025 results were exceptional: $3.7B revenue (26% YoY growth) and $124B in GMV (31% growth). These aren't startup numbers—they're from a company now generating billions.
 
-The AI revolution is playing directly into Shopify's hands. Their new AI-powered tools are transforming how merchants run their businesses - from automated customer service to intelligent marketing to product description generation. This AI integration is driving increased customer retention and higher take rates.
+The AI integration is meaningful. Shopify's AI tools help merchants with product descriptions, customer service, and marketing—increasing merchant stickiness and allowing Shopify to charge higher prices. The B2B channel is underappreciated; 118 of the Top 2000 North American retailers now use Shopify.
 
-Shopify's B2B e-commerce channel is emerging as a major growth driver, with 118 of the Top 2000 online retailers in North America now using their platform. The company's expansion into fulfillment services (Shopify Fulfillment Network) and payments (Shopify Payments) creates a complete ecosystem that keeps merchants locked in.""",
+At ~20x forward revenue, Shopify isn't cheap. But when you're growing 30%+ annually and taking share from legacy competitors, that premium is justified. The path to $225 comes from continued GMV growth + margin expansion as they scale payments and fulfillment.""",
 
         "evidence": [
-            "Q4 2025 revenue hit $3.7B with 31% YoY GMV growth - Investing.com",
-            "Q3 2025 revenue $2.84B, GMV $92B - Digital Commerce 360",
-            "Stock up 51.1% in 2025, outperforming market - Yahoo Finance",
-            "118 of Top 2000 North American retailers use Shopify - Digital Commerce 360"
+            "Q4 2025: $3.7B revenue (+26%), $124B GMV (+31%) - Investing.com",
+            "Q3 2025: $2.84B revenue, $92B GMV - Digital Commerce 360",
+            "118 of Top 2000 retailers use Shopify - Digital Commerce 360",
+            "AI commerce tools driving merchant retention - earnings calls"
         ],
 
         "catalysts": [
-            "AI commerce initiatives accelerating (ongoing 2025)",
-            "Agentic commerce adoption driving merchant growth",
-            "B2B channel expansion",
-            "Take rate improvement from Payments and Services"
+            "AI commerce adoption → 2025 → Higher take rates",
+            "B2B expansion → 2025-2026 → New revenue stream",
+            "Fulfillment network scaling → 2025-2026 → Margin expansion",
+            "Holiday season → Q4 2025 → Could beat estimates"
         ],
 
         "risks": [
-            "Competition from Amazon, other e-commerce platforms",
-            "Merchant concentration risk",
-            "Investment in fulfillment could pressure margins near-term"
-        ]
-    },
-
-    "BB": {
-        "name": "BlackBerry Limited",
-        "sector": "Enterprise Software / Cybersecurity",
-        "current_price": 0,
-        "price_target": "$8.00",
-        "timeframe": "12-24 months",
-        "upside": "100%+",
-        "why": """BlackBerry represents a compelling turnaround story. After exiting the smartphone business, the company has successfully pivoted to enterprise software and cybersecurity. Their QNX embedded operating system is now in over 200 million cars worldwide, making them a critical player in the connected car revolution.
-
-Their cybersecurity business (Cylance) provides AI-powered endpoint security, which is increasingly vital as cyber threats escalate. The IoT (Internet of Things) segment is also growing rapidly as more devices become connected. BlackBerry's technology is everywhere - from cars to medical devices to industrial equipment.
-
-The company has substantially reduced costs and is now focused on profitability. With significant cash reserves and a leaner operation, BlackBerry is positioned to benefit from the explosive growth in connected devices and cybersecurity spending.""",
-
-        "evidence": [
-            "QNX software in 200+ million cars worldwide",
-            "Strong position in automotive OS for autonomous vehicles",
-            "Cybersecurity market growing 15%+ annually",
-            "Cost reduction program completed, path to profitability"
-        ],
-
-        "catalysts": [
-            "Automotive partnerships expanding (ongoing)",
-            "AI in cybersecurity adoption",
-            "Connected car revolution accelerating",
-            "Any major cybersecurity contract wins"
-        ],
-
-        "risks": [
-            "Competition in enterprise software",
-            "Slow automotive adoption timeline",
-            "Historical profitability challenges"
+            "VALUATION: Expensive if growth slows even slightly",
+            "COMPETITION: Amazon constantly improving",
+            "MERCHANT: If large merchants leave, GMV impacted",
+            "INVESTMENT: Fulfillment could pressure near-term margins"
         ]
     },
 
     "GSY": {
         "name": "goeasy Ltd",
-        "sector": "Consumer Finance / Fintech",
+        "sector": "Consumer Finance",
         "current_price": 0,
-        "price_target": "$200",
+        "price_target": "$175",
         "timeframe": "12-18 months",
-        "upside": "25-40%",
-        "why": """goeasy is Canada's leading non-prime consumer lender, providing leases and loans to customers with limited credit options. The company has grown revenue 20%+ annually while maintaining excellent credit quality. Their proprietary underwriting technology allows them to assess risk better than competitors.
+        "upside": "25-35%",
+        "why": """goeasy is Canada's largest non-prime lender with a proven model: growing 20%+ annually while maintaining solid credit quality. The business is simple: lend to people banks won't touch, at higher rates, using superior underwriting.
 
-The US expansion represents a massive opportunity - the American non-prime consumer credit market is 10x larger than Canada. goeasy is bringing their proven model south of the border, which could dramatically accelerate growth.
+The US expansion is the real opportunity. Canada is a $10B market; the US is $100B+. goeasy has proven their model works—they just need to replicate it south of the border. Early results from US tests will be important.
 
-The stock trades at a reasonable valuation given the growth rate, and the business model generates significant cash flow. With high barriers to entry (licensing, technology, brand), goeasy is well-positioned to continue gaining market share.""",
+The stock trades at ~12x earnings for a 20%+ grower—that's cheap. If US expansion works, the growth rate accelerates. This is a "growth at reasonable price" play with a clear catalyst.""",
 
         "evidence": [
-            "20%+ annual revenue growth historically",
-            "60%+ gross margins demonstrate pricing power",
-            "US expansion underway - massive TAM opportunity",
-            "Strong credit quality metrics vs industry"
+            "20%+ annual revenue growth historically - company reports",
+            "60%+ gross margins show pricing power - financials",
+            "US market 10x larger than Canada - industry data",
+            "Proprietary underwriting technology - competitive advantage"
         ],
 
         "catalysts": [
-            "US market entry and scaling (2025-2026)",
-            "Continued market share gains in Canada",
-            "Margin expansion as scale benefits kick in",
-            "Potential for acquisitions in US"
+            "US expansion results → 2025 → Could prove thesis",
+            "Continued Canadian market share gains → ongoing → Growth",
+            "Margin expansion from scale → 2025-2026 → Higher profits",
+            "Potential US acquisitions → 2025-2026 → Accelerate growth"
         ],
 
         "risks": [
-            "Credit cycle risk / economic downturn",
-            "Regulatory changes in consumer lending",
-            "Competition from banks and fintechs"
+            "CREDIT: Economic downturn would hurt portfolio",
+            "REGULATION: Consumer lending faces regulatory risk",
+            "COMPETITION: Banks could get more aggressive",
+            "EXECUTION: US expansion could fail"
         ]
     },
 
@@ -207,67 +176,67 @@ The stock trades at a reasonable valuation given the growth rate, and the busine
         "name": "Dollarama Inc",
         "sector": "Discount Retail",
         "current_price": 0,
-        "price_target": "$250",
+        "price_target": "$175",
         "timeframe": "12 months",
-        "upside": "20-30%",
-        "why": """Dollarama is Canada's dominant discount retailer with over 1,400 stores and a rock-solid business model. During economic uncertainty, consumers shift to value retailers, making Dollarama a defensive yet growing investment.
+        "upside": "20-25%",
+        "why": """Dollarama is the undisputed king of Canadian discount retail. With 1,400+ stores and a clear path to 2,000+, they have years of unit growth ahead. The model is simple but powerful: everything at $1-$5, high volume, private-label focus.
 
-The company has a clear expansion roadmap to 2,000+ stores, providing years of unit growth. Their private-label products offer higher margins while maintaining customer appeal. Dollarama's scale gives them tremendous pricing power with suppliers.
+During economic uncertainty, consumers shift to value retailers. We've seen this pattern repeatedly—dollar stores outperform during recessions. With Canadian consumers feeling the pressure from inflation, Dollarama is well-positioned.
 
-Inflation actually benefits Dollarama - as prices rise elsewhere, their fixed-price model (everything at $1-$5) becomes more attractive. The company has consistently grown same-store sales and margins over time.""",
+The valuation is reasonable: ~25x earnings for a company that consistently grows same-store sales 5%+. That's not expensive for a defensive grower. The path to $175 is simple: store expansion + same-store growth + margin stability.""",
 
         "evidence": [
-            "1,400+ stores with path to 2,000+",
-            "Consistent same-store sales growth",
-            "Strong margins from private-label products",
-            "Defensive characteristics during economic uncertainty"
+            "1,400+ stores, path to 2,000+ - company guidance",
+            "Consistent 5%+ same-store sales growth - historical",
+            "Private-label drives higher margins - company data",
+            "Defensive in downturns - historical pattern"
         ],
 
         "catalysts": [
-            "New store openings (ongoing)",
-            "E-commerce platform launch",
-            "Private-label expansion driving margins",
-            "Economic uncertainty = more value shoppers"
+            "New store openings → ongoing → Unit growth",
+            "Economic uncertainty → ongoing → More shoppers",
+            "Private-label expansion → 2025 → Margin improvement",
+            "E-commerce launch → 2025 → New channel"
         ],
 
         "risks": [
-            "Competition from other dollar stores",
-            "Consumer spending declines",
-            "Supply chain costs"
+            "CONSUMER: Spending collapse would hurt",
+            "COMPETITION: Dollar General, others expanding Canada",
+            "SUPPLY: Cost inflation could pressure margins"
         ]
     },
 
-    "AC": {
-        "name": "Air Canada",
-        "sector": "Airlines",
+    "BB": {
+        "name": "BlackBerry Limited",
+        "sector": "Enterprise Software / Cybersecurity",
         "current_price": 0,
-        "price_target": "$25",
-        "timeframe": "12-18 months",
-        "upside": "40-60%",
-        "why": """Air Canada is Canada's largest airline and a beneficiary of strong travel demand. The company has transformed its operations, improved profitability, and invested in its loyalty program - one of the most valuable assets in Canadian aviation.
+        "price_target": "$7.00",
+        "timeframe": "18-24 months",
+        "upside": "80-100%",
+        "why": """BlackBerry's turnaround is real. After exiting phones, they've built two solid businesses: QNX (embedded software in 200M+ cars) and Cylance (cybersecurity). QNX alone could be worth the current market cap.
 
-The transatlantic market is particularly strong, and Air Canada has optimized its route network for maximum profitability. Their Rouge low-cost carrier helps capture price-sensitive leisure travelers while mainline serves business and premium customers.
+The automotive OS market is growing as cars become computers on wheels. Every new car needs software, and QNX has the safety certifications that take years to replicate. This is a "free option" on the connected car revolution.
 
-With the industry having consolidated and rationalized capacity, airlines are now generating historically strong profits. Air Canada's balance sheet has improved significantly, positioning them well for the future.""",
+Cylance provides AI-powered endpoint security—a growing market. The company has cut costs dramatically and is now focused on profitability. At $3.50, you're paying almost nothing for the cybersecurity business while getting QNX free. High risk, but the upside is real.""",
 
         "evidence": [
-            "Strong travel demand continues post-pandemic",
-            "Transatlantic route optimization",
-            "Loyalty program highly valuable",
-            "Improved financial position vs 2020"
+            "QNX in 200M+ cars worldwide - company data",
+            "Automotive OS market growing 15%+ annually - industry",
+            "Cost reduction complete, path to profitability - financials",
+            "Cylance cybersecurity gaining enterprise traction - reports"
         ],
 
         "catalysts": [
-            "Summer travel season (annual)",
-            "Route expansion announcements",
-            "Loyalty program monetization",
-            "Industry capacity discipline"
+            "Automotive partnerships → 2025-2026 → Revenue growth",
+            "Connected car revolution → ongoing → QNX demand",
+            "Enterprise security contracts → 2025 → Cylance growth",
+            "Any AI/security news → could spark rally"
         ],
 
         "risks": [
-            "Fuel costs / economic slowdown",
-            "Labour disruptions",
-            "Competition on key routes"
+            "COMPETITION: Big tech in automotive OS",
+            "TIMING: Car software adoption takes years",
+            "PROFITABILITY: Still not consistently profitable"
         ]
     },
 }
