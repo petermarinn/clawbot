@@ -412,11 +412,6 @@ class DataIntelligenceEngine:
         except: pass
         return 0.0, 0
 
-    def enable_social_sentiment_apis(self, reddit=False, twitter=False, stocktwits=False):
-        """Enable real social sentiment APIs"""
-        pass
-
-
     def enable_social_sentiment_apis(self, reddit: bool = False, twitter: bool = False, 
                                      stocktwits: bool = False):
         """

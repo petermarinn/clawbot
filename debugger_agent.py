@@ -5,9 +5,10 @@ import os
 import subprocess
 import sys
 import traceback
-#!/usr/bin/env python3
+
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
+
 """
 debugger_agent.py - Debugging and troubleshooting agent for Clawbot
 Helps identify syntax errors, trace issues, analyze logs, and diagnose problems
@@ -99,29 +100,29 @@ class DebuggerAgent:
         errors = [r for r in syntax_results if r["status"] == "ERROR"]
         
         if errors:
-            logger.info("  ❌ Found {len(errors)} syntax errors:")
+            logger.info(f"  ❌ Found {len(errors)} syntax errors:")
             for e in errors:
-                logger.info("     - {e['file']}: {e['error']}")
+                logger.info(f"     - {e['file']}: {e['error']}")
             return False
         else:
-            logger.info("  ✅ All {len(syntax_results)} files pass syntax check")
+            logger.info(f"  ✅ All {len(syntax_results)} files pass syntax check")
             
         return True
     
     def diagnose_file(self, filepath):
         """Full diagnostic for a file"""
-        logger.info("\n🔧 Diagnosing {filepath}...")
+        logger.info(f"\n🔧 Diagnosing {filepath}...")
         
         # Syntax
         syntax = self.check_syntax(filepath)
-        logger.info("  Syntax: {syntax[0]['status']}")
+        logger.info(f"  Syntax: {syntax[0]['status']}")
         
         # Imports
         imports = self.check_imports(filepath)
         missing = [i for i in imports if i["status"] == "MISSING"]
         
         if missing:
-            logger.info("  Missing imports: {', '.join(m['import'] for m in missing)}")
+            logger.info(f"  Missing imports: {', '.join(m['import'] for m in missing)}")
         else:
             logger.info("  Imports: All OK")
             
