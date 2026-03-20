@@ -16,7 +16,6 @@ Usage:
     # Open http://localhost:5000
 """
 
-import os
 from pathlib import Path
 import sys
 import subprocess
@@ -26,9 +25,12 @@ import logging
 from datetime import datetime, timedelta
 from threading import Thread
 import time
-import requests
 from flask import Flask, render_template_string, jsonify, request
 from flask_cors import CORS
+
+# Setup logging FIRST
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 # Import data intelligence engine
 try:
@@ -37,10 +39,6 @@ try:
 except ImportError:
     DATA_INTELLIGENCE_AVAILABLE = False
     logger.warning("data_intelligence not available")
-
-# Setup logging
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
 
 app = Flask(__name__)
 CORS(app)
@@ -271,7 +269,7 @@ def api_market():
 
 @app.route('/api/alerts', methods=['GET', 'POST'])
 def api_alerts():
-    global alerts, alert_id
+    global alert_id
     if request.method == 'POST':
         data = request.json
         alert_id += 1
@@ -317,7 +315,6 @@ def api_analysis(symbol):
 @app.route('/api/portfolio', methods=['GET', 'POST'])
 def api_portfolio():
     """Manage portfolio"""
-    global portfolio
     if request.method == 'POST':
         data = request.json
         portfolio.append({
@@ -738,7 +735,6 @@ Auto-refreshing every 5 seconds
 def system_dashboard():
     """System monitoring dashboard"""
     import os
-    import subprocess
     
     # Get process info
     procs = []

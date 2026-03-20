@@ -3,8 +3,6 @@
 GitHub Integration - Version Control Backup
 Backs up validated changes to GitHub, creates branches for features
 """
-import os
-import json
 import subprocess
 from datetime import datetime
 from pathlib import Path

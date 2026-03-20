@@ -4,8 +4,6 @@ import ast
 import importlib
 import json
 import logging
-import os
-import subprocess
 import sys
 #!/usr/bin/env python3
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')

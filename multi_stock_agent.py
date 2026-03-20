@@ -3,11 +3,8 @@ from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 import asyncio
 import click
-import json
-import logging
 import os
 import smtplib
-import sys
 """
 Stock Analysis Multi-Agent System
 Manager → Planner → (Researcher + Quant + Sentiment + Risk) → Synthesizer → Decision
@@ -36,7 +33,6 @@ except ImportError:
     OLLAMA_AVAILABLE = False
 
 try:
-    from ddgs import DDGS
     SEARCH_AVAILABLE = True
 except ImportError:
     SEARCH_AVAILABLE = False

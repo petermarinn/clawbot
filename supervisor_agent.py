@@ -4,12 +4,9 @@ Supervisor Agent (Watchdog) - Keeps the system running 24/7
 Monitors health, detects crashes/freeze, auto-restarts
 """
 import os
-import sys
 import json
 import time
-import signal
 from datetime import datetime, timedelta
-from pathlib import Path
 
 MEMORY_FILE = "memory.json"
 LOG_FILE = "logs.json"

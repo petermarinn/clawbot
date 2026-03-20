@@ -2,8 +2,6 @@ from ddgs import DDGS
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 import click
-import json
-import logging
 import os
 import requests
 import smtplib

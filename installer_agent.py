@@ -1,7 +1,5 @@
-from datetime import datetime
 from pathlib import Path
 import logging
-import os
 import subprocess
 import sys
 #!/usr/bin/env python3

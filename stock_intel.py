@@ -8,14 +8,11 @@ Usage:
 """
 
 import click
-import requests
-import json
 import os
 import yfinance as yf
 import smtplib
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
-from ddgs import DDGS
 from datetime import datetime
 
 OLLAMA_URL = "http://localhost:11434/api/generate"

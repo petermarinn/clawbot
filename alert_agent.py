@@ -3,10 +3,8 @@ from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 import click
 import json
-import logging
 import os
 import smtplib
-import time
 import yfinance as yf
 """
 Price Alert Agent

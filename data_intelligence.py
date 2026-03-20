@@ -56,24 +56,6 @@ REDDIT_CLIENT_SECRET = os.environ.get("REDDIT_CLIENT_SECRET", "")
 REDDIT_USER_AGENT = os.environ.get("REDDIT_USER_AGENT", "clawbot:v1.0")
 TWITTER_BEARER_TOKEN = os.environ.get("TWITTER_BEARER_TOKEN", "")
 
-# Try to import social APIs
-try:
-    import requests
-    REQUESTS_AVAILABLE = True
-except ImportError:
-    REQUESTS_AVAILABLE = False
-
-try:
-    import praw
-    REDDIT_AVAILABLE = True
-except ImportError:
-    REDDIT_AVAILABLE = False
-
-try:
-    import tweepy
-    TWITTER_AVAILABLE = True
-except ImportError:
-    TWITTER_AVAILABLE = False
 
 # API Configuration (set via environment variables)
 REDDIT_CLIENT_ID = os.environ.get("REDDIT_CLIENT_ID", "")

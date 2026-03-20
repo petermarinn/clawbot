@@ -4,7 +4,6 @@ Integration Tests - Validate end-to-end system functionality
 """
 import sys
 import json
-import time
 import subprocess
 from pathlib import Path
 

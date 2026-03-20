@@ -8,7 +8,6 @@ With state memory and dynamic behavior
 
 import json
 import logging
-import os
 import random
 import sys
 import time
@@ -54,21 +53,21 @@ except ImportError as e:
     NEWS_AVAILABLE = False
 
 try:
-    from portfolio_agent import load_portfolio, analyze
+    from portfolio_agent import load_portfolio
     PORTFOLIO_AVAILABLE = True
 except ImportError as e:
     logger.warning(f"Portfolio agent not available: {e}")
     PORTFOLIO_AVAILABLE = False
 
 try:
-    from self_upgrade_agent import main as run_upgrade
+    from self_upgrade_agent import main
     UPGRADE_AVAILABLE = True
 except ImportError as e:
     logger.warning(f"Upgrade agent not available: {e}")
     UPGRADE_AVAILABLE = False
 
 try:
-    from tester_agent import main as run_tester
+    from tester_agent import main
     TESTER_AVAILABLE = True
 except ImportError as e:
     logger.warning(f"Tester agent not available: {e}")
@@ -172,7 +171,6 @@ def run_news_agent():
     """Run news agent"""
     # Use yfinance news as primary
     try:
-        import yfinance as yf
         print("📰 Running News Agent (yfinance)...")
         
         # Get news for major indices

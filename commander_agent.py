@@ -12,11 +12,9 @@ If Ollama unavailable, falls back to rule-based logic.
 """
 
 import json
-import os
 import subprocess
 from pathlib import Path
 from datetime import datetime
-from typing import Dict, List, Optional
 
 
 class OllamaClient:

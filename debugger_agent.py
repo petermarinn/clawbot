@@ -1,10 +1,7 @@
 from pathlib import Path
 import ast
 import logging
-import os
 import subprocess
-import sys
-import traceback
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)

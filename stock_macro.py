@@ -9,8 +9,6 @@ Usage:
 """
 
 import click
-import requests
-import json
 import os
 import yfinance as yf
 import smtplib

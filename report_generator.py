@@ -4,9 +4,7 @@ Report Generator - Professional Investment Reports
 Generates HTML email reports with stock picks, price targets, and source citations
 """
 import os
-import json
 from datetime import datetime
-from typing import Dict, List, Optional
 
 # Import data intelligence
 try:

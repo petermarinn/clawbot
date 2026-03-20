@@ -2,10 +2,6 @@ from datetime import datetime
 from pathlib import Path
 import json
 import logging
-import os
-import re
-import subprocess
-import sys
 import urllib.error
 import urllib.request
 #!/usr/bin/env python3
