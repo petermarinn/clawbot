@@ -15,10 +15,6 @@ from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 from datetime import datetime
 
-# Load environment variables from .env file
-from dotenv import load_dotenv
-load_dotenv()
-
 OLLAMA_URL = "http://localhost:11434/api/generate"
 DEFAULT_MODEL = os.environ.get("OLLAMA_MODEL", "qwen2.5:0.5b")
 
@@ -30,211 +26,8 @@ EMAIL_PASSWORD = os.environ.get("EMAIL_PASSWORD", "")
 EMAIL_TO = os.environ.get("EMAIL_TO", "peterm2543@gmail.com")
 
 
-# Tickers to analyze (mix of Canadian .TO and US)
-STOCK_TICKERS = ["NANO.TO", "WPM", "SHOP", "BB", "AAPL", "MSFT"]
-
-
-def fetch_stock_data(ticker: str) -> dict:
-    """Fetch live stock data using yfinance"""
-    # Handle Canadian stocks
-    base_ticker = ticker.replace(".TO", "")
-    yf_ticker = ticker if ".TO" in ticker else ticker
-    
-    try:
-        t = yf.Ticker(yf_ticker)
-        info = t.info if t.info else {}
-        
-        # Get current price
-        current_price = info.get('currentPrice') or info.get('regularMarketPreviousClose') or 0
-        
-        # Get price target
-        price_target = info.get('targetMeanPrice') or info.get('analystPriceTarget') or current_price * 1.3
-        
-        # Calculate upside as float percentage
-        upside_pct = ((price_target - current_price) / current_price * 100) if current_price > 0 else 0
-        
-        # Get 52-week range
-        fifty_two_week_high = info.get('fiftyTwoWeekHigh', 0)
-        fifty_two_week_low = info.get('fiftyTwoWeekLow', 0)
-        
-        # Get fundamentals
-        pe_ratio = info.get('trailingPE')
-        market_cap = info.get('marketCap')
-        volume = info.get('regularMarketVolume')
-        sector = info.get('sector', 'Unknown')
-        
-        # Get news
-        news = []
-        try:
-            ticker_obj = yf.Ticker(yf_ticker)
-            if hasattr(ticker_obj, 'news'):
-                raw_news = ticker_obj.news or []
-                for n in raw_news[:5]:
-                    title = n.get('title', '')
-                    if title:
-                        news.append(title)
-        except:
-            pass
-        
-        return {
-            "name": info.get('shortName', base_ticker),
-            "sector": sector,
-            "current_price": current_price,
-            "price_target": price_target,
-            "upside_pct": upside_pct,
-            "upside": f"{upside_pct:.0f}%",
-            "52wk_high": fifty_two_week_high,
-            "52wk_low": fifty_two_week_low,
-            "pe_ratio": pe_ratio,
-            "market_cap": market_cap,
-            "volume": volume,
-            "news": news,
-            "info": info
-        }
-    except Exception as e:
-        print(f"Error fetching {ticker}: {e}")
-        return {
-            "name": base_ticker,
-            "sector": "Unknown",
-            "current_price": 0,
-            "price_target": 0,
-            "upside_pct": 0,
-            "upside": "0%",
-            "52wk_high": 0,
-            "52wk_low": 0,
-            "pe_ratio": None,
-            "market_cap": None,
-            "volume": None,
-            "news": [],
-            "info": {}
-        }
-
-
-def analyze_with_ollama(ticker: str, data: dict) -> dict:
-    """Send fundamentals and news to Ollama for analysis"""
-    import requests
-    
-    fundamentals = f"""Price: ${data['current_price']:.2f}
-Price Target: ${data['price_target']:.2f}
-Upside: {data['upside']}
-52-Week Range: ${data['52wk_low']:.2f} - ${data['52wk_high']:.2f}
-P/E Ratio: {data['pe_ratio']}
-Sector: {data['sector']}
-Market Cap: {data['market_cap']}
-Volume: {data['volume']}
-"""
-    
-    news_str = "\n".join([f"- {n}" for n in data['news'][:5]]) if data['news'] else "No recent news"
-    
-    prompt = f"""Given these fundamentals and recent news for {ticker}:
-
-FUNDAMENTALS:
-{fundamentals}
-
-RECENT NEWS:
-{news_str}
-
-Write a 3-sentence bull case, a 1-sentence bear case, and a one-word sentiment: bullish/neutral/bearish. Format as:
-BULL: <3 sentences>
-BEAR: <1 sentence>
-SENTIMENT: <one word>"""
-
-    try:
-        response = requests.post(
-            OLLAMA_URL,
-            json={"model": DEFAULT_MODEL, "prompt": prompt, "stream": False},
-            timeout=30
-        )
-        if response.status_code == 200:
-            result = response.json()
-            text = result.get('response', '')
-            
-            # Parse response
-            bull = ""
-            bear = ""
-            sentiment = "neutral"
-            
-            for line in text.split('\n'):
-                if line.startswith('BULL:'):
-                    bull = line.replace('BULL:', '').strip()
-                elif line.startswith('BEAR:'):
-                    bear = line.replace('BEAR:', '').strip()
-                elif line.startswith('SENTIMENT:'):
-                    sentiment = line.replace('SENTIMENT:', '').strip().lower()
-            
-            return {
-                "bull_case": bull,
-                "bear_case": bear,
-                "sentiment": sentiment,
-                "thesis": f"BULL: {bull}\n\nBEAR: {bear}"
-            }
-    except Exception as e:
-        print(f"Ollama error for {ticker}: {e}")
-    
-    return {
-        "bull_case": "Analysis pending",
-        "bear_case": "Analysis pending", 
-        "sentiment": "neutral",
-        "thesis": "Analysis pending"
-    }
-
-
-def build_stock_analysis() -> dict:
-    """Build stock analysis dictionary from live data"""
-    analysis = {}
-    for ticker in STOCK_TICKERS:
-        print(f"Fetching data for {ticker}...")
-        data = fetch_stock_data(ticker)
-        
-        # Get Ollama analysis
-        ollama_result = analyze_with_ollama(ticker, data)
-        
-        # Build the entry
-        base_ticker = ticker.replace(".TO", "")
-        analysis[base_ticker] = {
-            "name": data['name'],
-            "sector": data['sector'],
-            "current_price": data['current_price'],
-            "price_target": f"${data['price_target']:.2f}",
-            "upside_pct": data['upside_pct'],
-            "upside": data['upside'],
-            "support": f"${data['52wk_low']:.2f}" if data['52wk_low'] else "N/A",
-            "resistance": f"${data['52wk_high']:.2f}" if data['52wk_high'] else "N/A",
-            "fundamental": ollama_result['thesis'],
-            "news": data['news'],
-            "sentiment": {
-                "bullish_why": ollama_result['bull_case'],
-                "bearish_why": ollama_result['bear_case'],
-                "overall": ollama_result['sentiment'],
-                "trend": ollama_result['sentiment']
-            },
-            "positioning": {
-                "institutional": f"P/E: {data['pe_ratio']}" if data['pe_ratio'] else "N/A",
-                "insiders": "Data unavailable",
-                "short_interest": "Data unavailable",
-                "options": "Data unavailable"
-            },
-            "catalysts": ["Live data - check recent news"],
-            "timeline": {
-                "0_3_months": "Based on live analysis",
-                "3_6_months": "Based on live analysis",
-                "6_12_months": "Based on live analysis"
-            },
-            "risks": ["Market volatility", "Sector risk", "Liquidity risk"],
-            "invalidation": "Price drops below 52-week low",
-            "conviction": "6/10"
-        }
-    
-    return analysis
-
-
-# Build live stock analysis on import
-print("Fetching live stock data...")
-STOCK_ANALYSIS = build_stock_analysis()
-
 # Comprehensive stock database with FULL research
-# (Legacy - kept for reference, now using live data)
-OLD_STOCK_ANALYSIS = {
+STOCK_ANALYSIS = {
     "NANO": {
         "name": "Nano One Materials Corp",
         "sector": "Battery Technology / Cleantech",
@@ -657,7 +450,7 @@ def generate_email_content(prices: dict) -> str:
             STOCK_ANALYSIS[symbol]['current_price'] = prices[symbol]
     
     # Sort by upside potential
-    sorted_stocks = sorted(STOCK_ANALYSIS.items(), key=lambda x: x[1].get('upside_pct', 0), reverse=True)
+    sorted_stocks = sorted(STOCK_ANALYSIS.items(), key=lambda x: x[1]['upside'], reverse=True)
     best_pick = sorted_stocks[0]
     
     # Build email

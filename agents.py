@@ -60,14 +60,14 @@ except ImportError as e:
     PORTFOLIO_AVAILABLE = False
 
 try:
-    from self_upgrade_agent import main
+    from self_upgrade_agent import main as run_upgrade
     UPGRADE_AVAILABLE = True
 except ImportError as e:
     logger.warning(f"Upgrade agent not available: {e}")
     UPGRADE_AVAILABLE = False
 
 try:
-    from tester_agent import main
+    from tester_agent import main as run_tester
     TESTER_AVAILABLE = True
 except ImportError as e:
     logger.warning(f"Tester agent not available: {e}")
@@ -161,7 +161,7 @@ def run_stock_agent():
         state["cycle_count"] = state.get("cycle_count", 0) + 1
         save_state(state)
         
-        return True
+        return result
     except Exception as e:
         print(f"❌ Stock Agent error: {e}")
         return False
@@ -182,9 +182,9 @@ def run_news_agent():
                 for n in news[:1]:
                     title = n.get('title', n.get('content', {}).get('title', 'No title'))[:60]
                     print(f"   - {title}...")
-                return True
+                return result
         print("   No news available")
-        return True
+        return result
     except Exception as e:
         print(f"❌ News Agent error: {e}")
         return False
@@ -214,7 +214,7 @@ def run_website_agent():
                     print(f"   ✅ Dashboard OK - {len(data.get('picks', []))} stocks")
                 state["dashboard_running"] = True
                 save_state(state)
-                return True
+                return result
             else:
                 print(f"   ⚠️ Dashboard returned {resp.status_code}")
                 state["dashboard_running"] = False
@@ -241,7 +241,7 @@ def run_website_agent():
                         print("   ✅ Dashboard started successfully")
                         state["dashboard_running"] = True
                         save_state(state)
-                        return True
+                        return result
                 except:
                     print("   ⚠️ Dashboard may not have started properly")
                     state["dashboard_running"] = False
@@ -253,7 +253,7 @@ def run_website_agent():
             state["dashboard_running"] = False
         
         save_state(state)
-        return True
+        return result
     except Exception as e:
         print(f"❌ Website Agent error: {e}")
         state["dashboard_running"] = False
@@ -272,7 +272,7 @@ def run_portfolio_agent():
         print(f"   Portfolio has {len(portfolio)} positions")
         for p in portfolio[:3]:
             print(f"   - {p.get('symbol')}: {p.get('shares')} shares")
-        return True
+        return result
     except Exception as e:
         print(f"❌ Portfolio Agent error: {e}")
         return False
@@ -286,9 +286,11 @@ def run_self_upgrade_agent():
     
     try:
         print("🧠 Running Self-Upgrade Agent...")
-        print("   (Checking for system improvements...)")
-        # Self-upgrade main() may require arguments
-        return True
+        # Run the actual upgrade
+        result = run_upgrade()
+        if result is None:
+            result = True
+        return result
     except Exception as e:
         print(f"❌ Self-Upgrade Agent error: {e}")
         return False
@@ -302,9 +304,10 @@ def run_tester_agent():
     
     try:
         print("🧪 Running Tester Agent...")
-        # Tester main() may require arguments  
+        # Run the actual tester
+        result = run_tester()  
         print("   (Running system checks...)")
-        return True
+        return result
     except Exception as e:
         print(f"❌ Tester Agent error: {e}")
         return False

@@ -18,3 +18,4 @@ yfinance>=0.2.0
 
 # CLI
 click>=8.1.0
+python-dotenv

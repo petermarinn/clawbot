@@ -15,6 +15,10 @@ from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 from datetime import datetime
 
+# Load environment variables from .env file
+from dotenv import load_dotenv
+load_dotenv()
+
 OLLAMA_URL = "http://localhost:11434/api/generate"
 DEFAULT_MODEL = os.environ.get("OLLAMA_MODEL", "qwen2.5:0.5b")
 
