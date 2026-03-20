@@ -132,8 +132,8 @@ class DataIntelligenceEngine:
     """
     
     def __init__(self, stocks: List[str] = None):
-        # Default Canadian stocks
-        self.stocks = stocks or ["NANO", "WPM", "SHOP", "BB", "GSY", "DOL"]
+        # Default diversified stocks with valid market data
+        self.stocks = stocks or ["GSY", "DOL", "WPM", "AAPL", "MSFT", "GOOGL", "META", "AMD", "NVDA", "AMZN"]
         self.cache = {}
         self.cache_duration = 300  # 5 minutes
         
