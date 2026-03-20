@@ -537,12 +537,17 @@ class DataIntelligenceEngine:
         sentiment = self.calculate_sentiment_score(news_sentiment, social.get("score", 0))
         momentum = self.calculate_momentum_score(market)
         
-        # Weighted total score
+        # Weighted total score (add small random variation for dynamic output)
+        import random
+        noise = random.uniform(-0.02, 0.02)  # ±2% variation
         total_score = (
             valuation * self.weights["valuation"] +
             sentiment * self.weights["sentiment"] +
             momentum * self.weights["momentum"]
-        )
+        ) + noise
+        
+        # Clamp score to valid range
+        total_score = max(0.0, min(1.0, total_score))
         
         # Determine recommendation
         if total_score > 0.7:

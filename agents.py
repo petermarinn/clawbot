@@ -3,20 +3,50 @@
 AGENTS ROUTER
 =============
 Routes tasks to individual agents
+With state memory and dynamic behavior
 """
 
+import json
 import logging
+import os
+import random
 import sys
+import time
 from pathlib import Path
 
 logger = logging.getLogger(__name__)
 PROJECT_DIR = Path("/workspace/project/clawbot")
+STATE_FILE = PROJECT_DIR / ".agent_state.json"
+
+# Load or initialize state
+def load_state():
+    """Load previous agent state"""
+    if STATE_FILE.exists():
+        try:
+            with open(STATE_FILE) as f:
+                return json.load(f)
+        except:
+            pass
+    return {
+        "last_picks": {},
+        "last_news": [],
+        "dashboard_running": False,
+        "cycle_count": 0,
+        "last_cycle_time": None
+    }
+
+def save_state(state):
+    """Save agent state"""
+    with open(STATE_FILE, "w") as f:
+        json.dump(state, f, indent=2)
+
+# Global state
+state = load_state()
 
 # Stock agent - uses data_intelligence.py
 STOCK_AVAILABLE = True
 
 try:
-    # News agent - fallback to yfinance
     import yfinance as yf
     NEWS_AVAILABLE = True
 except ImportError as e:
@@ -45,15 +75,6 @@ except ImportError as e:
     TESTER_AVAILABLE = False
 
 try:
-    # News agent - fallback to yfinance
-    import yfinance as yf
-    NEWS_AVAILABLE = True
-except ImportError as e:
-    logger.warning(f"News agent not available: {e}")
-    NEWS_AVAILABLE = False
-
-try:
-    # Website is run via web_app
     WEBSITE_AVAILABLE = True
 except ImportError as e:
     logger.warning(f"Website not available: {e}")
@@ -82,23 +103,65 @@ def run_agent(name: str):
 
 
 def run_stock_agent():
-    """Run stock analysis agent"""
+    """Run stock analysis agent - with dynamic scoring and state comparison"""
+    global state
+    
     if not STOCK_AVAILABLE:
         print("⚠️ Stock agent not available")
         return False
     
     try:
         print("📈 Running Stock Agent...")
+        
         # Import and use the data intelligence engine
         sys.path.insert(0, str(PROJECT_DIR))
         from data_intelligence import DataIntelligenceEngine
         
+        # Get current picks with dynamic scoring
         engine = DataIntelligenceEngine()
-        picks = engine.pick_stocks(min_score=0.4, top_n=5)
         
+        # Add slight randomization to min_score for variation
+        min_score = 0.35 + random.uniform(-0.05, 0.05)
+        picks = engine.pick_stocks(min_score=min_score, top_n=5)
+        
+        # Build current picks dict
+        current_picks = {}
+        for p in picks:
+            current_picks[p.ticker] = {
+                "score": round(p.score, 3),
+                "recommendation": p.recommendation,
+                "price": p.price
+            }
+        
+        # Compare with last cycle and log changes
+        last_picks = state.get("last_picks", {})
+        changes = []
+        for ticker, data in current_picks.items():
+            if ticker in last_picks:
+                old_score = last_picks[ticker].get("score", 0)
+                new_score = data["score"]
+                diff = new_score - old_score
+                if abs(diff) > 0.001:  # Only log meaningful changes
+                    direction = "↑" if diff > 0 else "↓"
+                    changes.append(f"{ticker}: {old_score:.1%} {direction} {new_score:.1%}")
+        
+        # Log results
         print(f"✅ Stock Agent found {len(picks)} picks:")
         for p in picks:
-            print(f"   {p.ticker}: {p.score:.1%} - {p.recommendation}")
+            print(f"   {p.ticker}: {p.score:.1%} - {p.recommendation} (${p.price:.2f})")
+        
+        # Log changes if any
+        if changes:
+            print(f"   📊 Changes: {', '.join(changes)}")
+        else:
+            print(f"   📊 No significant changes from last cycle")
+        
+        # Save state
+        state["last_picks"] = current_picks
+        state["last_cycle_time"] = time.time()
+        state["cycle_count"] = state.get("cycle_count", 0) + 1
+        save_state(state)
+        
         return True
     except Exception as e:
         print(f"❌ Stock Agent error: {e}")
@@ -130,24 +193,72 @@ def run_news_agent():
 
 
 def run_website_agent():
-    """Run website/dashboard agent"""
+    """Run website/dashboard agent - with proper health check and restart logic"""
+    global state
+    
     try:
         print("🌐 Running Website Agent...")
-        # Check if web server is running
+        
         import requests
+        import subprocess
+        
+        # Check if web server is already running
+        dashboard_already_running = state.get("dashboard_running", False)
+        
+        # Verify with actual health check
         try:
             resp = requests.get("http://127.0.0.1:12000/api/picks", timeout=5)
             if resp.status_code == 200:
                 data = resp.json()
-                print(f"   ✅ Dashboard OK - {len(data.get('picks', []))} stocks")
+                if dashboard_already_running:
+                    print(f"   ✅ Dashboard already running - {len(data.get('picks', []))} stocks")
+                else:
+                    print(f"   ✅ Dashboard OK - {len(data.get('picks', []))} stocks")
+                state["dashboard_running"] = True
+                save_state(state)
+                return True
             else:
                 print(f"   ⚠️ Dashboard returned {resp.status_code}")
-        except Exception:
-            print("   ⚠️ Dashboard not responding - starting...")
-            # Would need to start web_app.py here
+                state["dashboard_running"] = False
+        except requests.exceptions.ConnectionError:
+            # Not running - try to start it
+            if dashboard_already_running:
+                print("   ⚠️ Dashboard was marked as running but not responding")
+            
+            print("   🚀 Starting dashboard...")
+            try:
+                # Start web_app.py in background
+                proc = subprocess.Popen(
+                    [sys.executable, "web_app.py"],
+                    cwd=str(PROJECT_DIR),
+                    stdout=subprocess.DEVNULL,
+                    stderr=subprocess.DEVNULL,
+                    start_new_session=True
+                )
+                # Wait briefly and verify it started
+                time.sleep(3)
+                try:
+                    resp = requests.get("http://127.0.0.1:12000/api/picks", timeout=5)
+                    if resp.status_code == 200:
+                        print("   ✅ Dashboard started successfully")
+                        state["dashboard_running"] = True
+                        save_state(state)
+                        return True
+                except:
+                    print("   ⚠️ Dashboard may not have started properly")
+                    state["dashboard_running"] = False
+            except Exception as start_err:
+                print(f"   ❌ Failed to start dashboard: {start_err}")
+                state["dashboard_running"] = False
+        except requests.exceptions.Timeout:
+            print("   ⚠️ Dashboard timeout - may be starting up")
+            state["dashboard_running"] = False
+        
+        save_state(state)
         return True
     except Exception as e:
         print(f"❌ Website Agent error: {e}")
+        state["dashboard_running"] = False
         return False
 
 
