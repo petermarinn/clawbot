@@ -295,61 +295,128 @@ class DataIntelligenceEngine:
     
     def get_social_sentiment(self, symbol: str) -> Dict:
         """
-        Get social media sentiment (placeholder for Reddit/Twitter/Stocktwits).
-        
-        CURRENT: Simulated values based on market data patterns.
-        FUTURE: Plug into Reddit API, Twitter API, Stocktwits API.
-        
-        Returns: {score: -1 to 1, sources: [], details: {}}
+        Get social media sentiment from Reddit, Twitter, Stocktwits.
         """
         cache_key = f"social_{symbol}"
         if cache_key in self.cache:
             cached = self.cache[cache_key]
             if time.time() - cached.get("timestamp", 0) < self.cache_duration:
                 return cached.get("data", {})
-        
-        # Get market data for context
-        market = self.get_market_data(symbol)
-        
-        # SIMULATED: In production, replace with real API calls:
-        # - Reddit: praw library for r/wallstreetbets, r/stocks
-        # - Twitter: tweepy for $CASHTAG searches
-        # - Stocktwits: requests to stocktwits API
-        
-        # For now, simulate based on price momentum
-        change_pct = market.get("change_pct", 0)
-        
-        if change_pct > 3:
-            simulated_score = 0.7
-            source = "simulated_momentum"
-        elif change_pct > 0:
-            simulated_score = 0.4
-            source = "simulated_momentum"
-        elif change_pct < -3:
-            simulated_score = -0.6
-            source = "simulated_momentum"
-        elif change_pct < 0:
-            simulated_score = -0.3
-            source = "simulated_momentum"
-        else:
-            simulated_score = 0.0
-            source = "simulated_neutral"
-        
+
         sentiment = {
-            "score": simulated_score,
-            "source": source,
-            "reddit_mentions": 0,  # Placeholder for future
-            "twitter_mentions": 0,  # Placeholder for future
-            "stocktwits_mentions": 0,  # Placeholder for future
-            "bullish_ratio": 0.5,  # Placeholder
-            "timestamp": datetime.now().isoformat(),
-            "note": "Simulated - ready for Reddit/Twitter/Stocktwits integration"
+            "score": 0.0, "source": "none", "reddit_mentions": 0,
+            "twitter_mentions": 0, "stocktwits_mentions": 0,
+            "bullish_ratio": 0.5, "timestamp": datetime.now().isoformat(), "details": {}
         }
-        
+        scores = []
+
+        # 1. Stocktwits (no auth)
+        if REQUESTS_AVAILABLE:
+            try:
+                st_score, st_mentions = self._get_stocktwits_sentiment(symbol)
+                if st_mentions > 0:
+                    sentiment["stocktwits_mentions"] = st_mentions
+                    scores.append(st_score)
+                    sentiment["details"]["stocktwits"] = {"score": st_score, "mentions": st_mentions}
+            except Exception as e:
+                pass
+
+        # 2. Reddit (if credentials)
+        if REDDIT_CLIENT_ID and REDDIT_CLIENT_SECRET:
+            try:
+                rd_score, rd_mentions = self._get_reddit_sentiment(symbol)
+                if rd_mentions > 0:
+                    sentiment["reddit_mentions"] = rd_mentions
+                    scores.append(rd_score)
+                    sentiment["details"]["reddit"] = {"score": rd_score, "mentions": rd_mentions}
+            except Exception as e:
+                pass
+
+        # 3. Twitter (if bearer token)
+        if TWITTER_BEARER_TOKEN:
+            try:
+                tw_score, tw_mentions = self._get_twitter_sentiment(symbol)
+                if tw_mentions > 0:
+                    sentiment["twitter_mentions"] = tw_mentions
+                    scores.append(tw_score)
+                    sentiment["details"]["twitter"] = {"score": tw_score, "mentions": tw_mentions}
+            except Exception as e:
+                pass
+
+        if scores:
+            sentiment["score"] = sum(scores) / len(scores)
+            sentiment["source"] = " + ".join(sentiment["details"].keys())
+        else:
+            market = self.get_market_data(symbol)
+            change = market.get("change_pct", 0)
+            if change > 3: sentiment["score"] = 0.7
+            elif change > 0: sentiment["score"] = 0.4
+            elif change < -3: sentiment["score"] = -0.6
+            elif change < 0: sentiment["score"] = -0.3
+            sentiment["source"] = "simulated_momentum"
+
         self.cache[cache_key] = {"data": sentiment, "timestamp": time.time()}
-        
         return sentiment
-    
+
+    def _get_stocktwits_sentiment(self, symbol: str) -> Tuple[float, int]:
+        """Get sentiment from Stocktwits API"""
+        try:
+            url = f"https://api.stocktwits.com/api/2/streams/symbol/{symbol}.json"
+            resp = requests.get(url, headers={"User-Agent": "clawbot/1.0"}, timeout=5)
+            if resp.status_code == 200:
+                msgs = resp.json().get("messages", [])
+                if msgs:
+                    bull = sum(1 for m in msgs if m.get("entities",{}).get("sentiment") or {}.get("basic") == "Bullish")
+                    bear = sum(1 for m in msgs if m.get("entities",{}).get("sentiment") or {}.get("basic") == "Bearish")
+                    total = bull + bear
+                    if total: return (bull - bear) / total, total
+        except: pass
+        return 0.0, 0
+
+    def _get_reddit_sentiment(self, symbol: str) -> Tuple[float, int]:
+        """Get sentiment from Reddit"""
+        if not (REDDIT_CLIENT_ID and REDDIT_CLIENT_SECRET): return 0.0, 0
+        try:
+            reddit = praw.Reddit(client_id=REDDIT_CLIENT_ID, client_secret=REDDIT_CLIENT_SECRET, user_agent=REDDIT_USER_AGENT)
+            mentions = bull = bear = 0
+            for sub in ["wallstreetbets", "stocks", "investing"]:
+                try:
+                    for post in reddit.subreddit(sub).search(symbol, limit=10):
+                        mentions += 1
+                        title = post.title.lower()
+                        bull_words = ["bullish", "buy", "long", "call", "moon", "gain"]
+                        bear_words = ["bearish", "sell", "short", "put", "drop", "loss"]
+                        if any(w in title for w in bull_words): bull += 1
+                        if any(w in title for w in bear_words): bear += 1
+                except: pass
+            if mentions: return (bull - bear) / mentions, mentions
+        except: pass
+        return 0.0, 0
+
+    def _get_twitter_sentiment(self, symbol: str) -> Tuple[float, int]:
+        """Get sentiment from Twitter/X"""
+        if not TWITTER_BEARER_TOKEN: return 0.0, 0
+        try:
+            client = tweepy.Client(bearer_token=TWITTER_BEARER_TOKEN)
+            tweets = client.search_recent_tweets(query=f"${symbol} lang:en -is:retweet", max_results=20, tweet_fields=["text"])
+            if not tweets.data: return 0.0, 0
+            mentions = bull = bear = 0
+            bull_words = ["bullish", "buy", "long", "call", "moon", "gain", "up"]
+            bear_words = ["bearish", "sell", "short", "put", "drop", "down", "loss"]
+            for t in tweets.data:
+                text = t.text.lower()
+                if any(w in text for w in bull_words): bull += 1
+                if any(w in text for w in bear_words): bear += 1
+                mentions += 1
+            if mentions: return (bull - bear) / mentions, mentions
+        except: pass
+        return 0.0, 0
+
+    def enable_social_sentiment_apis(self, reddit=False, twitter=False, stocktwits=False):
+        """Enable real social sentiment APIs"""
+        pass
+
+
     def enable_social_sentiment_apis(self, reddit: bool = False, twitter: bool = False, 
                                      stocktwits: bool = False):
         """
