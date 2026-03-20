@@ -5,3 +5,4 @@ __pycache__/
 *.log
 sync.log
 .DS_Store
+.agent_state.json
