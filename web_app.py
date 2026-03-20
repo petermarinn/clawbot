@@ -30,6 +30,14 @@ import requests
 from flask import Flask, render_template_string, jsonify, request
 from flask_cors import CORS
 
+# Import data intelligence engine
+try:
+    from data_intelligence import DataIntelligenceEngine
+    DATA_INTELLIGENCE_AVAILABLE = True
+except ImportError:
+    DATA_INTELLIGENCE_AVAILABLE = False
+    logger.warning("data_intelligence not available")
+
 # Setup logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -452,9 +460,110 @@ def api_run_agent():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
-@app.route('/api/chart/<symbol>')
+# ===================== DATA INTELLIGENCE API =====================
 
-# Stock detail page route - add to web_app.py after imports
+# Cache for data intelligence
+_data_intel_cache = {}
+_data_intel_timestamp = 0
+CACHE_DURATION = 300  # 5 minutes
+
+@app.route('/api/picks')
+def api_picks():
+    """Get AI stock picks from data intelligence engine"""
+    global _data_intel_cache, _data_intel_timestamp
+    
+    # Check cache
+    if time.time() - _data_intel_timestamp < CACHE_DURATION and _data_intel_cache:
+        return jsonify(_data_intel_cache)
+    
+    if not DATA_INTELLIGENCE_AVAILABLE:
+        return jsonify({"error": "Data intelligence not available"}), 503
+    
+    try:
+        engine = DataIntelligenceEngine()
+        picks = engine.pick_stocks(min_score=0.3, top_n=5)
+        
+        # Convert to JSON-serializable format
+        result = {
+            "timestamp": datetime.now().isoformat(),
+            "picks": [
+                {
+                    "ticker": p.ticker,
+                    "score": p.score,
+                    "recommendation": p.recommendation,
+                    "price": p.price,
+                    "change_pct": p.change_pct,
+                    "pe_ratio": p.pe_ratio,
+                    "upside": p.upside,
+                    "valuation_score": p.valuation_score,
+                    "sentiment_score": p.sentiment_score,
+                    "momentum_score": p.momentum_score,
+                    "reasoning": p.reasoning
+                }
+                for p in picks
+            ]
+        }
+        
+        # Update cache
+        _data_intel_cache = result
+        _data_intel_timestamp = time.time()
+        
+        return jsonify(result)
+        
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+@app.route('/api/analyze/<symbol>')
+def api_analyze(symbol):
+    """Analyze a specific stock"""
+    if not DATA_INTELLIGENCE_AVAILABLE:
+        return jsonify({"error": "Data intelligence not available"}), 503
+    
+    try:
+        engine = DataIntelligenceEngine([symbol.upper()])
+        analysis = engine.score_stock(symbol.upper())
+        
+        if not analysis:
+            return jsonify({"error": "Could not analyze stock"}), 404
+        
+        return jsonify({
+            "ticker": analysis.ticker,
+            "score": analysis.score,
+            "recommendation": analysis.recommendation,
+            "price": analysis.price,
+            "change_pct": analysis.change_pct,
+            "pe_ratio": analysis.pe_ratio,
+            "market_cap": analysis.market_cap,
+            "volume": analysis.volume,
+            "target_price": analysis.target_price,
+            "upside": analysis.upside,
+            "valuation_score": analysis.valuation_score,
+            "sentiment_score": analysis.sentiment_score,
+            "momentum_score": analysis.momentum_score,
+            "news_sentiment": analysis.news_sentiment,
+            "social_sentiment": analysis.social_sentiment,
+            "reasoning": analysis.reasoning,
+            "timestamp": analysis.timestamp
+        })
+        
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+@app.route('/api/sentiment/<symbol>')
+def api_sentiment(symbol):
+    """Get social sentiment for a stock"""
+    if not DATA_INTELLIGENCE_AVAILABLE:
+        return jsonify({"error": "Data intelligence not available"}), 503
+    
+    try:
+        engine = DataIntelligenceEngine([symbol.upper()])
+        sentiment = engine.get_social_sentiment(symbol.upper())
+        return jsonify(sentiment)
+        
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+# Stock detail page route
 
 @app.route("/stock/<symbol>")
 def stock_detail_page(symbol):
