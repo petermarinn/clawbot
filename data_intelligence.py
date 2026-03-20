@@ -185,7 +185,7 @@ class DataIntelligenceEngine:
                 "pe_ratio": info.get("trailingPE"),
                 "forward_pe": info.get("forwardPE"),
                 "peg_ratio": info.get("pegRatio"),
-                "dividend_yield": info.get("dividendYield"),
+                "dividend_yield": info.get("dividendYield") or 0,
                 "eps": info.get("trailingEps"),
                 "fifty_two_week_high": info.get("fiftyTwoWeekHigh"),
                 "fifty_two_week_low": info.get("fiftyTwoWeekLow"),
@@ -601,7 +601,10 @@ class DataIntelligenceEngine:
             if pe and pe < 25:
                 reasons.append(f"attractive P/E ({pe:.1f})")
             if market.get("dividend_yield", 0) > 0.02:
-                reasons.append(f"dividend yield ({market['dividend_yield']*100:.1f}%)")
+                dy = market.get('dividend_yield', 0)
+            # yfinance returns dividendYield as percentage (e.g., 0.93 = 0.93%)
+            if dy and dy > 0:
+                reasons.append(f"dividend yield ({dy:.2f}%)")
         
         # Sentiment
         if sentiment > 0.6:
