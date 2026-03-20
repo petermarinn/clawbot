@@ -457,10 +457,9 @@ def api_run_agent():
 # Stock detail page route - add to web_app.py after imports
 
 @app.route("/stock/<symbol>")
-
-# System monitoring dashboard route - add to web_app.py
-
-@app.route("/system")
+def stock_detail_page(symbol):
+    """Stock detail page wrapper"""
+    return stock_detail(symbol)
 
 # System monitoring dashboard route - add to web_app.py
 
