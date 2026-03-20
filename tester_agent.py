@@ -18,7 +18,7 @@ Validates agent inputs/outputs, tests integrations, runs test suites
 class TesterAgent:
     """Agent for testing and validating Clawbot components"""
     
-    def __init__(self, project_dir="/workspace/project/clawbot"):
+    def __init__(self, project_dir=None):
         self.project_dir = Path(project_dir)
         self.test_results = []
         self.passed = 0

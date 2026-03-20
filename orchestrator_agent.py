@@ -5,11 +5,19 @@ Manages task lifecycle: pending → running → completed/failed
 Prevents duplicate execution, handles retries
 """
 import json
+import os
+import sys
+import subprocess
+from pathlib import Path
 from datetime import datetime
 
 COMMANDS_FILE = "commander_commands.json"
 MEMORY_FILE = "memory.json"
 LOG_FILE = "logs.json"
+
+# Get project directory dynamically
+PROJECT_DIR = Path(__file__).parent.resolve()
+
 
 class OrchestratorAgent:
     def __init__(self):
@@ -176,11 +184,11 @@ class OrchestratorAgent:
     
     def route_to_agent(self, agent_name, task):
         """Route task to the appropriate agent for execution"""
-        
+
         # Map agent names to their files/modules
         agent_map = {
             "master_agent": "master_agent.py",
-            "website_agent": "website_agent.py", 
+            "website_agent": "website_agent.py",
             "news_agent": "news_agent.py",
             "stock_agent": "stock_agent.py",
             "portfolio_agent": "portfolio_agent.py",
@@ -189,30 +197,70 @@ class OrchestratorAgent:
             "installer_agent": "installer_agent.py",
             "self_upgrade_agent": "self_upgrade_agent.py",
             "alert_agent": "alert_agent.py",
+            "data_intelligence": "data_intelligence.py",
         }
-        
-        # Check if it's a simple task we can handle
-        task_title = task.get("title", "").lower()
+
+        # Get the agent file
+        agent_file = agent_map.get(agent_name)
+        if not agent_file:
+            print(f"   ⚠️ Unknown agent: {agent_name}")
+            return {"success": False, "error": f"Unknown agent: {agent_name}"}
+
+        # Build command arguments from requirements
         task_req = task.get("requirements", {})
-        
-        # Handle common tasks directly
-        if "pre-pull" in task_title or "validation" in task_title:
-            return "Validation passed - system healthy"
-        
-        if "update website" in task_title or "sync" in task_title:
-            return "Website synced with current state"
-        
-        if "fix" in task_title:
-            # Delegate to debugger
-            return self.execute_debugger_task(task)
-        
-        # For agent-specific tasks, create a task file or command
-        # This is a simplified version - in production, would spawn subprocess
-        print(f"   📤 Routing to {agent_name}...")
-        
-        # Simulate agent execution
-        return f"Task routed to {agent_name}"
-    
+        args = []
+
+        # Handle different requirement formats
+        if "command" in task_req:
+            args = task_req["command"].split()
+        elif "action" in task_req:
+            args = ["--action", task_req["action"]]
+
+        # Add any additional requirements as args
+        for key, value in task_req.items():
+            if key not in ["command", "action"]:
+                args.extend([f"--{key}", str(value)])
+
+        # Execute the agent as a subprocess
+        print(f"\n{'='*50}")
+        print(f"Running: {agent_name} ({agent_file})")
+        print(f"Args: {args}")
+        print(f"{'='*50}")
+
+        agent_path = PROJECT_DIR / agent_file
+        if not agent_path.exists():
+            print(f"   ⚠️ Agent file not found: {agent_file}")
+            return {"success": False, "error": f"Agent file not found: {agent_file}"}
+
+        cmd = [sys.executable, agent_file]
+        cmd.extend(args)
+
+        try:
+            result = subprocess.run(
+                cmd,
+                cwd=str(PROJECT_DIR),
+                capture_output=True,
+                text=True,
+                timeout=180
+            )
+            if result.stdout:
+                print(result.stdout)
+            if result.stderr:
+                print(f"Errors: {result.stderr[:500]}")
+
+            success = result.returncode == 0
+            return {
+                "success": success,
+                "output": result.stdout,
+                "error": result.stderr if result.returncode != 0 else None
+            }
+        except subprocess.TimeoutExpired:
+            print(f"   ❌ Agent timed out: {agent_name}")
+            return {"success": False, "error": "Task timed out"}
+        except Exception as e:
+            print(f"   ❌ Error running {agent_name}: {e}")
+            return {"success": False, "error": str(e)}
+
     def execute_debugger_task(self, task):
         """Execute a debugger/fix task"""
         task_req = task.get("requirements", {})

@@ -18,7 +18,7 @@ logger = logging.getLogger(__name__)
 class SelfUpgradeAgent:
     """Agent that researches and upgrades other agents automatically"""
     
-    def __init__(self, project_dir="/workspace/project/clawbot"):
+    def __init__(self, project_dir=None):
         self.project_dir = Path(project_dir)
         self.upgrades_made = []
         self.research_results = []

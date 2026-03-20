@@ -7,7 +7,7 @@ import json
 import subprocess
 from pathlib import Path
 
-PROJECT_DIR = Path("/workspace/project/clawbot")
+PROJECT_DIR = Path(__file__).parent.resolve()
 
 class IntegrationTests:
     def __init__(self):

@@ -15,7 +15,7 @@ Checks, installs, and manages required packages and dependencies
 class InstallerAgent:
     """Agent for managing Clawbot dependencies"""
     
-    def __init__(self, project_dir="/workspace/project/clawbot"):
+    def __init__(self, project_dir=None):
         self.project_dir = Path(project_dir)
         self.installed = []
         self.failed = []

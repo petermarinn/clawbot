@@ -7,7 +7,7 @@ import subprocess
 from datetime import datetime
 from pathlib import Path
 
-PROJECT_DIR = Path("/workspace/project/clawbot")
+PROJECT_DIR = Path(__file__).parent.resolve()
 
 class GitHubIntegration:
     def __init__(self):

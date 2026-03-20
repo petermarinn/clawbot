@@ -14,7 +14,7 @@ import time
 from pathlib import Path
 
 logger = logging.getLogger(__name__)
-PROJECT_DIR = Path("/workspace/project/clawbot")
+PROJECT_DIR = Path(__file__).parent.resolve()
 STATE_FILE = PROJECT_DIR / ".agent_state.json"
 
 # Load or initialize state

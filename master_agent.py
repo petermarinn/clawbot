@@ -14,7 +14,7 @@ from datetime import datetime
 class MasterAgent:
     """Orchestrates all Clawbot agents - receives commands from Commander"""
     
-    def __init__(self, project_dir="/workspace/project/clawbot"):
+    def __init__(self, project_dir=None):
         self.project_dir = Path(project_dir)
         self.commands_file = Path(project_dir) / "commander_commands.json"
         

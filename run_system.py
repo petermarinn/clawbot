@@ -18,7 +18,7 @@ import subprocess
 from pathlib import Path
 from datetime import datetime
 
-PROJECT_DIR = Path("/workspace/project/clawbot")
+PROJECT_DIR = Path(__file__).parent.resolve()
 
 # Import supervisor for health checks
 def run_supervisor_check():
@@ -93,35 +93,27 @@ class SystemRunner:
         return []
         
     def execute_command(self, command: dict) -> bool:
-        """Step 3: Execute a single command via Master"""
-        print(f"\n🔧 Executing: {command.get('title', 'Unknown')}")
+        """Step 3: Execute a single command via Orchestrator"""
+        print(f"
+🔧 Executing: {command.get('title', 'Unknown')}")
         
-        target = command.get("target_agent", "master_agent")
-        requirements = command.get("requirements", {})
+        # Import orchestrator dynamically to avoid circular imports
+        from orchestrator_agent import OrchestratorAgent
         
-        # Build command for master
-        cmd_args = []
-        if "command" in requirements:
-            cmd_args = requirements["command"].split()
+        agent_name = command.get("target_agent", "master_agent")
         
-        # Execute via master_agent
-        cmd = [sys.executable, "master_agent.py"] + cmd_args
+        # Use orchestrator to route to the correct agent
+        orch = OrchestratorAgent()
+        result = orch.route_to_agent(agent_name, command)
         
-        result = subprocess.run(
-            cmd,
-            cwd=str(PROJECT_DIR),
-            capture_output=True,
-            text=True,
-            timeout=120
-        )
-        
-        success = result.returncode == 0
-        
+        success = result.get("success", False) if isinstance(result, dict) else False
+
         if success:
             print(f"✅ Command executed: {command.get('title')}")
         else:
-            print(f"❌ Command failed: {result.stderr[:200]}")
-            
+            error = result.get("error", "Unknown error") if isinstance(result, dict) else str(result)
+            print(f"❌ Command failed: {error[:200]}")
+
         return success
         
     def execute_commands(self, commands: list):

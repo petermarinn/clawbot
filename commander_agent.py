@@ -73,7 +73,7 @@ class CommanderAgent:
     It does NOT execute tasks - it only decides and commands.
     """
     
-    def __init__(self, project_dir="/workspace/project/clawbot"):
+    def __init__(self, project_dir=None):
         self.project_dir = Path(project_dir)
         self.memory_file = self.project_dir / "memory.json"
         self.commands_file = self.project_dir / "commander_commands.json"
@@ -355,7 +355,39 @@ class CommanderAgent:
             "target_agent": "master_agent",
             "requirements": {"command": "--pre-pull"},
             "expected_outcome": "All validations pass",
-            "priority": "HIGH"
+            "priority": "HIGH",
+            "status": "pending"
+        })
+
+        # Always include data intelligence tasks
+        commands.append({
+            "title": "Run Stock Analysis",
+            "objective": "Scan stocks and update picks with live data",
+            "target_agent": "stock_agent",
+            "requirements": {"action": "scan_stocks"},
+            "expected_outcome": "Stock picks updated with latest analysis",
+            "priority": "HIGH",
+            "status": "pending"
+        })
+
+        commands.append({
+            "title": "Fetch Market News",
+            "objective": "Get latest market news and sentiment",
+            "target_agent": "news_agent",
+            "requirements": {"action": "fetch_news"},
+            "expected_outcome": "News data refreshed",
+            "priority": "HIGH",
+            "status": "pending"
+        })
+
+        commands.append({
+            "title": "Run Data Intelligence",
+            "objective": "Run data intelligence engine for alignment check",
+            "target_agent": "data_intelligence",
+            "requirements": {"action": "run_alignment"},
+            "expected_outcome": "Intelligence report generated",
+            "priority": "HIGH",
+            "status": "pending"
         })
         
         # Check if website needs updates

@@ -11,7 +11,7 @@ import logging
 from pathlib import Path
 from datetime import datetime
 
-PROJECT_DIR = Path("/workspace/project/clawbot")
+PROJECT_DIR = Path(__file__).parent.resolve()
 sys.path.insert(0, str(PROJECT_DIR))
 
 # Configure logging

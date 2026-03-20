@@ -7,6 +7,7 @@ import os
 import json
 import time
 from datetime import datetime, timedelta
+from pathlib import Path
 
 MEMORY_FILE = "memory.json"
 LOG_FILE = "logs.json"
@@ -68,7 +69,7 @@ class SupervisorAgent:
         }
         
         # Check 1: Last system cycle
-        last_cycle = self.memory.get("last_cycle")
+        last_cycle = self.memory.get("last_system_run")
         if last_cycle:
             try:
                 last_time = datetime.fromisoformat(last_cycle)
@@ -126,7 +127,8 @@ class SupervisorAgent:
             # Kill and restart run_system.py
             os.system("pkill -f 'run_system.py'")
             time.sleep(2)
-            os.system("cd /workspace/project/clawbot && python3 run_system.py --continuous &")
+            proj_dir = Path(__file__).parent
+os.system(f"cd {proj_dir} && python3 run_system.py --continuous os.system("cd /workspace/project/clawbot && python3 run_system.py --continuous &")")
             
             # Update crash count
             self.memory.setdefault("supervisor", {})
@@ -138,7 +140,8 @@ class SupervisorAgent:
         elif component == "web":
             os.system("pkill -f 'web_app.py'")
             time.sleep(2)
-            os.system("cd /workspace/project/clawbot && python3 web_app.py &")
+            proj_dir = Path(__file__).parent
+os.system(f"cd {proj_dir} && python3 web_app.py os.system("cd /workspace/project/clawbot && python3 web_app.py &")")
             self.log("RESTART", "Web server restarted")
     
     def run_health_check(self):

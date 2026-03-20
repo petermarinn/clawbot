@@ -16,7 +16,7 @@ Manages web_app.py, frontend, API endpoints, templates, and serving
 class WebsiteAgent:
     """Agent for managing Clawbot web presence"""
     
-    def __init__(self, project_dir="/workspace/project/clawbot"):
+    def __init__(self, project_dir=None):
         self.project_dir = Path(project_dir)
         self.web_app = self.project_dir / "web_app.py"
         self.port = 5000

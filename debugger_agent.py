@@ -16,7 +16,7 @@ Helps identify syntax errors, trace issues, analyze logs, and diagnose problems
 class DebuggerAgent:
     """Agent for debugging and troubleshooting Clawbot"""
     
-    def __init__(self, project_dir="/workspace/project/clawbot"):
+    def __init__(self, project_dir=None):
         self.project_dir = Path(project_dir)
         self.results = []
         
