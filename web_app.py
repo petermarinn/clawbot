@@ -1254,6 +1254,22 @@ HTML = '''<!DOCTYPE html>
 </html>
 '''
 
+
+@app.route("/status")
+def status_page():
+    """Agent status page - pretty dashboard"""
+    import os
+    status_file = "static/status.html"
+    if os.path.exists(status_file):
+        return open(status_file).read()
+    return """
+    <html><head><title>Clawbot Status</title></head>
+    <body style='background:#0d1117;color:#c9d1d9;font-family:system-ui;padding:40px;'>
+        <h1>🤖 Clawbot Agent Status</h1>
+        <p>System is running! Check /system for details.</p>
+    </body></html>
+    """
+
 if __name__ == '__main__':
     fetcher.start()
     print("\n🚀 STOCK INTELLIGENCE DASHBOARD")

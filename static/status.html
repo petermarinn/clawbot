@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🤖 Clawbot Agent Status</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            background: linear-gradient(135deg, #0d1117 0%, #161b22 100%);
+            color: #c9d1d9;
+            min-height: 100vh;
+            padding: 40px;
+        }
+        .container { max-width: 900px; margin: 0 auto; }
+        
+        h1 {
+            color: #58a6ff;
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: #238636;
+            color: white;
+            padding: 8px 20px;
+            border-radius: 20px;
+            font-size: 1rem;
+            font-weight: 600;
+        }
+        
+        .status-dot {
+            width: 12px;
+            height: 12px;
+            background: #3fb950;
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        
+        .last-update {
+            color: #8b949e;
+            margin-bottom: 30px;
+            font-size: 0.9rem;
+        }
+        
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+        }
+        
+        .card {
+            background: #21262d;
+            border-radius: 16px;
+            padding: 20px;
+            border: 1px solid #30363d;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        
+        .card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.3);
+        }
+        
+        .card-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 15px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #30363d;
+        }
+        
+        .agent-icon {
+            font-size: 1.8rem;
+        }
+        
+        .agent-name {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #c9d1d9;
+        }
+        
+        .agent-status {
+            margin-left: auto;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+        
+        .running {
+            background: #238636;
+            color: white;
+        }
+        
+        .idle {
+            background: #9e6a03;
+            color: white;
+        }
+        
+        .inactive {
+            background: #484f58;
+            color: white;
+        }
+        
+        .stats {
+            display: flex;
+            gap: 30px;
+            margin-bottom: 30px;
+            padding: 20px;
+            background: #161b22;
+            border-radius: 12px;
+            border: 1px solid #30363d;
+        }
+        
+        .stat {
+            text-align: center;
+        }
+        
+        .stat-num {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #58a6ff;
+        }
+        
+        .stat-label {
+            font-size: 0.85rem;
+            color: #8b949e;
+        }
+        
+        .activity {
+            margin-top: 30px;
+        }
+        
+        .activity h2 {
+            color: #8b949e;
+            font-size: 1rem;
+            margin-bottom: 15px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .activity-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 12px;
+            background: #161b22;
+            border-radius: 8px;
+            margin-bottom: 8px;
+            border-left: 3px solid #3fb950;
+        }
+        
+        .activity-time {
+            color: #8b949e;
+            font-size: 0.85rem;
+        }
+        
+        .links {
+            margin-top: 40px;
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+        
+        .link-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px 24px;
+            background: #238636;
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: 600;
+            transition: background 0.2s;
+        }
+        
+        .link-btn:hover {
+            background: #2ea043;
+        }
+        
+        .link-btn.secondary {
+            background: #30363d;
+        }
+        
+        .link-btn.secondary:hover {
+            background: #484f58;
+        }
+    </style>
+    <meta http-equiv="refresh" content="30">
+</head>
+<body>
+    <div class="container">
+        <h1>🤖 Clawbot Agent Status</h1>
+        <div class="status-badge">
+            <span class="status-dot"></span>
+            SYSTEM RUNNING
+        </div>
+        <p class="last-update">Last updated: <span id="timestamp"></span></p>
+        
+        <div class="stats">
+            <div class="stat">
+                <div class="stat-num" id="running-count">2</div>
+                <div class="stat-label">Running</div>
+            </div>
+            <div class="stat">
+                <div class="stat-num" id="idle-count">9</div>
+                <div class="stat-label">Idle</div>
+            </div>
+            <div class="stat">
+                <div class="stat-num">11</div>
+                <div class="stat-label">Total Agents</div>
+            </div>
+        </div>
+        
+        <div class="grid" id="agents-grid">
+            <!-- Agents populated by JavaScript -->
+        </div>
+        
+        <div class="activity">
+            <h2>📋 Recent Activity</h2>
+            <div id="activity-list">
+                <!-- Activity populated by JavaScript -->
+            </div>
+        </div>
+        
+        <div class="links">
+            <a href="http://localhost:5000/" class="link-btn">📊 Dashboard</a>
+            <a href="http://localhost:5000/system" class="link-btn secondary">⚙️ System Monitor</a>
+            <a href="https://github.com/petermarinn/clawbot" class="link-btn secondary">🐙 GitHub</a>
+        </div>
+    </div>
+    
+    <script>
+        // Set timestamp
+        document.getElementById('timestamp').textContent = new Date().toLocaleString();
+        
+        // Agent data (populated from system)
+        const agents = [
+            { name: 'Commander', icon: '🎯', status: 'running', desc: 'Decision maker - analyzes & generates tasks' },
+            { name: 'Master', icon: '⚡', status: 'running', desc: 'Task executor - routes to specialized agents' },
+            { name: 'Website', icon: '🌐', status: 'idle', desc: 'UI updates & website sync' },
+            { name: 'News', icon: '📰', status: 'idle', desc: 'News fetching & sentiment analysis' },
+            { name: 'Stock', icon: '📈', status: 'idle', desc: 'Stock data & analysis' },
+            { name: 'Portfolio', icon: '💼', status: 'idle', desc: 'Portfolio calculations' },
+            { name: 'Debugger', icon: '🔧', status: 'idle', desc: 'Bug detection & fixes' },
+            { name: 'Tester', icon: '🧪', status: 'idle', desc: 'Testing & validation' },
+            { name: 'Installer', icon: '📦', status: 'idle', desc: 'Dependency management' },
+            { name: 'Self-Upgrade', icon: '🚀', status: 'idle', desc: 'Code improvements' },
+            { name: 'Alert', icon: '🔔', status: 'idle', desc: 'Monitoring & alerts' }
+        ];
+        
+        // Render agents
+        const grid = document.getElementById('agents-grid');
+        let running = 0, idle = 0;
+        
+        agents.forEach(agent => {
+            if (agent.status === 'running') running++;
+            if (agent.status === 'idle') idle++;
+            
+            const card = document.createElement('div');
+            card.className = 'card';
+            card.innerHTML = `
+                <div class="card-header">
+                    <span class="agent-icon">${agent.icon}</span>
+                    <span class="agent-name">${agent.name}</span>
+                    <span class="agent-status ${agent.status}">${agent.status}</span>
+                </div>
+                <p style="color: #8b949e; font-size: 0.9rem;">${agent.desc}</p>
+            `;
+            grid.appendChild(card);
+        });
+        
+        // Update counts
+        document.getElementById('running-count').textContent = running;
+        document.getElementById('idle-count').textContent = idle;
+        
+        // Sample activity (in real version, fetch from API)
+        const activities = [
+            { task: 'Fix: stale_data', time: new Date(Date.now() - 60000).toLocaleTimeString() },
+            { task: 'Fix: missing_news', time: new Date(Date.now() - 120000).toLocaleTimeString() },
+            { task: 'Run Pre-Pull Validation', time: new Date(Date.now() - 180000).toLocaleTimeString() },
+            { task: 'Update Website', time: new Date(Date.now() - 240000).toLocaleTimeString() }
+        ];
+        
+        const activityList = document.getElementById('activity-list');
+        activities.forEach(act => {
+            const item = document.createElement('div');
+            item.className = 'activity-item';
+            item.innerHTML = `
+                <span>✅ ${act.task}</span>
+                <span class="activity-time">${act.time}</span>
+            `;
+            activityList.appendChild(item);
+        });
+    </script>
+</body>
+</html>

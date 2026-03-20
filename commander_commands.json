@@ -1,6 +1,6 @@
 {
-  "timestamp": "2026-03-19T19:18:55.867716",
-  "command_count": 6,
+  "timestamp": "2026-03-20T00:30:54.734328",
+  "command_count": 5,
   "commands": [
     {
       "title": "Fix: stale_data",
@@ -21,19 +21,7 @@
       "requirements": {
         "type": "missing_news",
         "agent": "news_agent",
-        "description": "News not updated recently"
-      },
-      "expected_outcome": "Item fixed and working",
-      "priority": "HIGH"
-    },
-    {
-      "title": "Fix: portfolio_update",
-      "objective": "Fix the broken portfolio_update component",
-      "target_agent": "portfolio_agent",
-      "requirements": {
-        "type": "portfolio_update",
-        "agent": "portfolio_agent",
-        "description": "Portfolio calculations need refresh"
+        "description": "News not updated"
       },
       "expected_outcome": "Item fixed and working",
       "priority": "HIGH"
