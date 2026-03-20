@@ -3,10 +3,10 @@
 RUN SYSTEM - Main Loop
 =====================
 This is the main orchestration loop that:
-1. Runs Commander
-2. Gets commands
-3. Sends to Master
-4. Executes tasks
+1. Supervisor health check
+2. Runs Commander
+3. Gets commands
+4. Orchestrator executes tasks via Master
 5. Updates memory/state
 6. Repeats
 """
@@ -19,6 +19,21 @@ from pathlib import Path
 from datetime import datetime
 
 PROJECT_DIR = Path("/workspace/project/clawbot")
+
+# Import supervisor for health checks
+def run_supervisor_check():
+    """Run supervisor health check"""
+    try:
+        result = subprocess.run(
+            [sys.executable, "supervisor_agent.py", "--check"],
+            cwd=str(PROJECT_DIR),
+            capture_output=True,
+            text=True,
+            timeout=30
+        )
+        return result.returncode == 0
+    except:
+        return False
 
 
 class SystemRunner:
